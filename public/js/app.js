@@ -8420,7 +8420,11 @@ exports = module.exports = __webpack_require__(/*! ../../../../node_modules/css-
 
 
 // module
+<<<<<<< HEAD
 exports.push([module.i, "\n.scroll {\r\n  max-height: 100vh;\r\n  overflow-y: auto;\n}\r\n", ""]);
+=======
+exports.push([module.i, "\n.scroll {\n  max-height: 100vh;\n  overflow-y: auto;\n}\n", ""]);
+>>>>>>> 691b36f01b23894e9d0fd98d0a5c7c77b04571fc
 
 // exports
 
@@ -8439,7 +8443,11 @@ exports = module.exports = __webpack_require__(/*! ../../../../node_modules/css-
 
 
 // module
+<<<<<<< HEAD
 exports.push([module.i, "\n.hiddenRow {\r\n  padding: 0 !important;\n}\r\n", ""]);
+=======
+exports.push([module.i, "\n.hiddenRow {\n  padding: 0 !important;\n}\n", ""]);
+>>>>>>> 691b36f01b23894e9d0fd98d0a5c7c77b04571fc
 
 // exports
 
@@ -8458,7 +8466,11 @@ exports = module.exports = __webpack_require__(/*! ../../../../node_modules/css-
 
 
 // module
+<<<<<<< HEAD
 exports.push([module.i, "\n.hiddenRow {\r\n  padding: 0 !important;\n}\r\n", ""]);
+=======
+exports.push([module.i, "\n.hiddenRow {\n  padding: 0 !important;\n}\n", ""]);
+>>>>>>> 691b36f01b23894e9d0fd98d0a5c7c77b04571fc
 
 // exports
 
@@ -8477,7 +8489,11 @@ exports = module.exports = __webpack_require__(/*! ../../../../node_modules/css-
 
 
 // module
+<<<<<<< HEAD
 exports.push([module.i, "\n.hiddenRow {\r\n  padding: 0 !important;\n}\r\n", ""]);
+=======
+exports.push([module.i, "\n.hiddenRow {\n  padding: 0 !important;\n}\n", ""]);
+>>>>>>> 691b36f01b23894e9d0fd98d0a5c7c77b04571fc
 
 // exports
 
@@ -56822,8 +56838,13 @@ __webpack_require__.r(__webpack_exports__);
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
+<<<<<<< HEAD
 __webpack_require__(/*! C:\Users\lea-p\Desktop\Laboratorio-de-Software-master\resources\js\app.js */"./resources/js/app.js");
 module.exports = __webpack_require__(/*! C:\Users\lea-p\Desktop\Laboratorio-de-Software-master\resources\sass\app.scss */"./resources/sass/app.scss");
+=======
+__webpack_require__(/*! C:\Users\Don Mierda\Downloads\Lab\Laboratorio-de-Software-master\resources\js\app.js */"./resources/js/app.js");
+module.exports = __webpack_require__(/*! C:\Users\Don Mierda\Downloads\Lab\Laboratorio-de-Software-master\resources\sass\app.scss */"./resources/sass/app.scss");
+>>>>>>> 691b36f01b23894e9d0fd98d0a5c7c77b04571fc
 
 
 /***/ })

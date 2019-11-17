@@ -27,6 +27,12 @@ class SolicitudesController extends Controller
         $horarios=DB::table('máshorarios')
         ->orderBy('idMásHorarios','desc')
         ->paginate(10);
+        $horas=DB::table('horas')
+        ->orderBy('idHora','desc')
+        ->paginate(10);
+        $salas=DB::table('salas')
+        ->orderBy('idSalas','desc')
+        ->paginate(10);
         return [$solicitudes,$sol_pendientes, $sol_atendidas, $sol_asignadas, $horarios];
     }
     public function update(Request $request, $id)
@@ -64,10 +70,32 @@ class SolicitudesController extends Controller
         return $formulario;
     }
 
-    public function destroy($id){
+    public function destroy($id, $horarios){
+        foreach ($horarios as $h) {
+            $a = $h['MHorarioD'];
+            $b = $h['MHorarioH'];
+            $period = new DatePeriod(
+            new DateTime($a),
+            new DateInterval('PT30M'),
+            new DateTime($b)
+            );
+            foreach ($period as $date) {
+                DB::table('horas')->insert([
+                    ['idF' => $id, 'hora' => $date->format("H:i"), 'dia' => $h['MDia']], 'sala' => 'R211']); 
+            }
+        }
         DB::table('sol_pendientes')->where('idF', '=', $id)->delete();
         DB::table('sol_atendidas')->insert([
             ['idF' => $id],]); 
+    }
+
+
+    public function mail(Request $request){
+        $horarios=DB::table('horas')
+        ->where('idF', '=', $request->idF)
+        ->orderBy('idSalas','desc')
+        ->paginate(10);
+        Mail::to($request->FCorreoUTP)->send($horarios);
     }
 }
 
