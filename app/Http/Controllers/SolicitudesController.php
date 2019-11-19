@@ -33,7 +33,7 @@ class SolicitudesController extends Controller
         $salas=DB::table('salas')
         ->orderBy('idSalas','desc')
         ->paginate(10);
-        return [$solicitudes,$sol_pendientes, $sol_atendidas, $sol_asignadas, $horarios];
+        return [$solicitudes,$sol_pendientes, $sol_atendidas, $sol_asignadas, $horarios, $horas, $salas];
     }
     public function update(Request $request, $id)
     {
