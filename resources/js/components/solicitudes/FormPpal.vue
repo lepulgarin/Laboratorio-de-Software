@@ -72,6 +72,7 @@
                     :index="index"
                     :solicitud="solicitud"
                     :horarios="hor_pendientes"
+                    :salas="salas"
                     @new="recargar"
                   ></solPen-component>
                 </div>
@@ -166,6 +167,8 @@ export default {
       hor_pendientes: [],
       hor_atendidas: [],
       hor_asignadas: [],
+      horas: [],
+      salas: [],
       recharge: 0
     };
   },
@@ -182,6 +185,8 @@ export default {
         this.solicitudesAten = this.todas[2].data;
         this.solicitudesAsig = this.todas[3].data;
         this.horarios = this.todas[4].data;
+        this.horas = this.todas[5].data;
+        this.salas = this.todas[6].data;
         this.lists();
       });
     },

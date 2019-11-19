@@ -111,6 +111,25 @@
                       <div class="col-3">
                         <label for>{{horario.MHorarioH}}</label>
                       </div>
+                      <div class="col-3">
+                        <div class="btn-group">
+                          <button
+                            class="btn btn-secondary btn-sm dropdown-toggle"
+                            type="button"
+                            data-toggle="dropdown"
+                            aria-haspopup="true"
+                            aria-expanded="false"
+                          >{{salaSel}}</button>
+                          <div class="dropdown-menu">
+                            <a
+                              class="dropdown-item"
+                              href="#"
+                              v-for="(sala,index) in salas"
+                              :key="index"
+                            >{{sala.Nombre}}</a>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </span>
                   <div
@@ -133,7 +152,12 @@
       <div class="modal-dialog modal-xl">
         <div class="modal-content">
           <div class="modal-header">
-            <formuEdit-component :solicitud="solicitud" :horariosreq="myHorarios" :idF="idF" @new="recargar"></formuEdit-component>
+            <formuEdit-component
+              :solicitud="solicitud"
+              :horariosreq="myHorarios"
+              :idF="idF"
+              @new="recargar"
+            ></formuEdit-component>
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
               <span aria-hidden="true" @click.prevent="recargar">&times;</span>
             </button>
@@ -146,15 +170,17 @@
 
 <script>
 export default {
-  props: ["index", "solicitud", "horarios", "idF"],
+  props: ["index", "solicitud", "horarios", "idF", "salas"],
   data() {
     return {
-      myHorarios: []
+      myHorarios: [],
+      salaSel: "sala"
     };
   },
 
   mounted() {
     this.myHor();
+    console.log(this.salas);
   },
   methods: {
     myHor() {

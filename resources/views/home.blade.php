@@ -1,5 +1,10 @@
 @extends('layouts.app')
 
 @section('content')
-    <ppal-sol-component> </ppal-sol-component>
+<!doctype html>
+<html>
+    <body style= "overflow: hidden">
+        <ppal-sol-component> </ppal-sol-component>
+    </body>
+</html>
 @endsection
