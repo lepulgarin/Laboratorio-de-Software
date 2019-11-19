@@ -3260,6 +3260,7 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
@@ -3275,6 +3276,8 @@ __webpack_require__.r(__webpack_exports__);
       hor_pendientes: [],
       hor_atendidas: [],
       hor_asignadas: [],
+      horas: [],
+      salas: [],
       recharge: 0
     };
   },
@@ -3293,6 +3296,8 @@ __webpack_require__.r(__webpack_exports__);
         _this.solicitudesAten = _this.todas[2].data;
         _this.solicitudesAsig = _this.todas[3].data;
         _this.horarios = _this.todas[4].data;
+        _this.horas = _this.todas[5].data;
+        _this.salas = _this.todas[6].data;
 
         _this.lists();
       });
@@ -3876,15 +3881,41 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
-  props: ["index", "solicitud", "horarios", "idF"],
+  props: ["index", "solicitud", "horarios", "idF", "salas"],
   data: function data() {
     return {
-      myHorarios: []
+      myHorarios: [],
+      salaSel: "sala"
     };
   },
   mounted: function mounted() {
     this.myHor();
+    console.log(this.salas);
   },
   methods: {
     myHor: function myHor() {
@@ -8420,11 +8451,7 @@ exports = module.exports = __webpack_require__(/*! ../../../../node_modules/css-
 
 
 // module
-<<<<<<< HEAD
 exports.push([module.i, "\n.scroll {\r\n  max-height: 100vh;\r\n  overflow-y: auto;\n}\r\n", ""]);
-=======
-exports.push([module.i, "\n.scroll {\n  max-height: 100vh;\n  overflow-y: auto;\n}\n", ""]);
->>>>>>> 691b36f01b23894e9d0fd98d0a5c7c77b04571fc
 
 // exports
 
@@ -8443,11 +8470,7 @@ exports = module.exports = __webpack_require__(/*! ../../../../node_modules/css-
 
 
 // module
-<<<<<<< HEAD
 exports.push([module.i, "\n.hiddenRow {\r\n  padding: 0 !important;\n}\r\n", ""]);
-=======
-exports.push([module.i, "\n.hiddenRow {\n  padding: 0 !important;\n}\n", ""]);
->>>>>>> 691b36f01b23894e9d0fd98d0a5c7c77b04571fc
 
 // exports
 
@@ -8466,11 +8489,7 @@ exports = module.exports = __webpack_require__(/*! ../../../../node_modules/css-
 
 
 // module
-<<<<<<< HEAD
 exports.push([module.i, "\n.hiddenRow {\r\n  padding: 0 !important;\n}\r\n", ""]);
-=======
-exports.push([module.i, "\n.hiddenRow {\n  padding: 0 !important;\n}\n", ""]);
->>>>>>> 691b36f01b23894e9d0fd98d0a5c7c77b04571fc
 
 // exports
 
@@ -8489,11 +8508,7 @@ exports = module.exports = __webpack_require__(/*! ../../../../node_modules/css-
 
 
 // module
-<<<<<<< HEAD
 exports.push([module.i, "\n.hiddenRow {\r\n  padding: 0 !important;\n}\r\n", ""]);
-=======
-exports.push([module.i, "\n.hiddenRow {\n  padding: 0 !important;\n}\n", ""]);
->>>>>>> 691b36f01b23894e9d0fd98d0a5c7c77b04571fc
 
 // exports
 
@@ -42107,7 +42122,8 @@ var render = function() {
                                   idF: solicitud.idF,
                                   index: index,
                                   solicitud: solicitud,
-                                  horarios: _vm.hor_pendientes
+                                  horarios: _vm.hor_pendientes,
+                                  salas: _vm.salas
                                 },
                                 on: { new: _vm.recargar }
                               })
@@ -43287,6 +43303,45 @@ var render = function() {
                                   _c("div", { staticClass: "col-3" }, [
                                     _c("label", { attrs: { for: "" } }, [
                                       _vm._v(_vm._s(horario.MHorarioH))
+                                    ])
+                                  ]),
+                                  _vm._v(" "),
+                                  _c("div", { staticClass: "col-3" }, [
+                                    _c("div", { staticClass: "btn-group" }, [
+                                      _c(
+                                        "button",
+                                        {
+                                          staticClass:
+                                            "btn btn-secondary btn-sm dropdown-toggle",
+                                          attrs: {
+                                            type: "button",
+                                            "data-toggle": "dropdown",
+                                            "aria-haspopup": "true",
+                                            "aria-expanded": "false"
+                                          }
+                                        },
+                                        [_vm._v(_vm._s(_vm.salaSel))]
+                                      ),
+                                      _vm._v(" "),
+                                      _c(
+                                        "div",
+                                        { staticClass: "dropdown-menu" },
+                                        _vm._l(_vm.salas, function(
+                                          sala,
+                                          index
+                                        ) {
+                                          return _c(
+                                            "a",
+                                            {
+                                              key: index,
+                                              staticClass: "dropdown-item",
+                                              attrs: { href: "#" }
+                                            },
+                                            [_vm._v(_vm._s(sala.Nombre))]
+                                          )
+                                        }),
+                                        0
+                                      )
                                     ])
                                   ])
                                 ]
@@ -56838,13 +56893,8 @@ __webpack_require__.r(__webpack_exports__);
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-<<<<<<< HEAD
 __webpack_require__(/*! C:\Users\lea-p\Desktop\Laboratorio-de-Software-master\resources\js\app.js */"./resources/js/app.js");
 module.exports = __webpack_require__(/*! C:\Users\lea-p\Desktop\Laboratorio-de-Software-master\resources\sass\app.scss */"./resources/sass/app.scss");
-=======
-__webpack_require__(/*! C:\Users\Don Mierda\Downloads\Lab\Laboratorio-de-Software-master\resources\js\app.js */"./resources/js/app.js");
-module.exports = __webpack_require__(/*! C:\Users\Don Mierda\Downloads\Lab\Laboratorio-de-Software-master\resources\sass\app.scss */"./resources/sass/app.scss");
->>>>>>> 691b36f01b23894e9d0fd98d0a5c7c77b04571fc
 
 
 /***/ })
