@@ -7,7 +7,10 @@
 <template>
   <div class="container-fluid">
     <div class="row flex-xl-nowrap" style="height:100vh">
-      <div class="card col-xs-2 bd-sidebar">
+      <div
+        class="card col-xs-2 bd-sidebar"
+        style="box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);"
+      >
         <div
           class="nav flex-column nav-pills"
           id="v-pills-tab"
@@ -51,10 +54,13 @@
             role="tabpanel"
             aria-labelledby="v-pills-pendientes-tab"
           >
-            <div class="card" style="height:100vh;">
+            <div
+              class="card"
+              style="height:100vh; box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);"
+            >
               <div class="card-header">Solicitudes Pendientes</div>
               <table class="table">
-                <thead>
+                <thead style=" box-shadow: 0px 10px 8px -6px rgba(0, 0, 0, 0.2);">
                   <tr>
                     <th style="width: 20%">Fecha Solicitud</th>
                     <th style="width: 20%">Nombre</th>
@@ -73,6 +79,7 @@
                     :solicitud="solicitud"
                     :horarios="hor_pendientes"
                     :salas="salas"
+                    :horas="horas"
                     @new="recargar"
                   ></solPen-component>
                 </div>
@@ -85,10 +92,13 @@
             role="tabpanel"
             aria-labelledby="v-pills-atendidas-tab"
           >
-            <div class="card" style="height:100vh;">
+            <div
+              class="card"
+              style="height:100vh; box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);"
+            >
               <div class="card-header">Solicitudes Atendidas</div>
               <table class="table">
-                <thead>
+                <thead style=" box-shadow: 0px 10px 8px -6px rgba(0, 0, 0, 0.2);">
                   <tr>
                     <th style="width: 20%">Fecha Solicitud</th>
                     <th style="width: 20%">Nombre</th>
@@ -118,10 +128,13 @@
             role="tabpanel"
             aria-labelledby="v-pills-asignadas-tab"
           >
-            <div class="card" style="height:100vh;">
+            <div
+              class="card"
+              style="height:100vh; box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);"
+            >
               <div class="card-header">Solicitudes Asignadas</div>
               <table class="table">
-                <thead>
+                <thead style=" box-shadow: 0px 10px 8px -6px rgba(0, 0, 0, 0.2);">
                   <tr>
                     <th style="width: 20%">Fecha Solicitud</th>
                     <th style="width: 20%">Nombre</th>
@@ -235,7 +248,7 @@ export default {
       }
     },
     recargar() {
-      Object.assign(this.$data, this.$options.data())
+      Object.assign(this.$data, this.$options.data());
       this.recharge += 1;
       this.getSolicitudes();
     }

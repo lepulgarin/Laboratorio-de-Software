@@ -3261,6 +3261,19 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
@@ -3905,25 +3918,83 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
-  props: ["index", "solicitud", "horarios", "idF", "salas"],
+  props: ["index", "solicitud", "horarios", "idF", "salas", "horas"],
   data: function data() {
     return {
       myHorarios: [],
-      salaSel: "sala"
+      myHoras: []
     };
   },
   mounted: function mounted() {
+    this.myHoras = this.horas.concat(this.myHoras);
     this.myHor();
-    console.log(this.salas);
+    this.mySal();
   },
   methods: {
     myHor: function myHor() {
-      for (var horario in this.horarios) {
-        if (this.horarios[horario].idF === this.idF) {
-          this.myHorarios.push(this.horarios[horario]);
+      var _this = this;
+
+      this.horarios.forEach(function (horario) {
+        if (horario.idF === _this.idF) {
+          var tmp = {
+            sala: "sala"
+          };
+          Object.assign(horario, tmp);
+          tmp = {
+            salas: []
+          };
+          Object.assign(horario, tmp);
+
+          _this.myHorarios.push(horario);
         }
-      }
+      });
+    },
+    mySal: function mySal() {
+      var _this2 = this;
+
+      this.myHorarios.forEach(function (horario) {
+        _this2.salas.forEach(function (sala) {
+          if (sala.Nequipos > _this2.solicitud.FEstudiantes) {
+            if (!(_this2.solicitud.FEquipoA === 1 && sala.VideoBeam === 0)) {
+              if (_this2.myHoras.some(function (hora) {
+                return hora.sala === sala.Nombre;
+              })) {
+                if (_this2.myHoras.some(function (hora) {
+                  return hora.dia === horario.MDia && hora.dia === sala.Nombre;
+                })) {
+                  var tmp;
+                  tmp = _this2.myHoras.filter(function (hora) {
+                    return hora.hora >= horario.MHorarioD && hora.sala === sala.Nombre;
+                  });
+
+                  if (tmp.length > 0) {
+                    tmp.sort(function (a, b) {
+                      if (a.hora > b.hora) return 1;else return -1;
+                    });
+
+                    var horaReq = _this2.restarHoras(horario.MHorarioD, horario.MHorarioH);
+
+                    var horaDis = _this2.restarHoras(horario.MHorarioD, tmp[0].hora);
+
+                    if (horaDis > horaReq) {
+                      horario.salas.push(sala);
+                    }
+                  } else {
+                    horario.salas.push(sala);
+                  }
+                } else {
+                  horario.salas.push(sala);
+                }
+              } else {
+                horario.salas.push(sala);
+              }
+            }
+          }
+        });
+      });
     },
     edit: function edit() {
       $("#edit" + this.index).modal("show");
@@ -3933,11 +4004,46 @@ __webpack_require__.r(__webpack_exports__);
       this.$emit("new");
     },
     asignar: function asignar() {
-      var _this = this;
+      var _this3 = this;
 
-      axios["delete"]("/solicitudes" + "/" + this.solicitud.idF).then(function (response) {
-        return _this.$emit("new");
+      axios["delete"]("/solicitudes" + "/" + this.solicitud.idF, {
+        idF: this.idF
+      }, {
+        horarios: this.myHorarios
+      }).then(function (response) {
+        return _this3.$emit("new");
       });
+    },
+    cambiarSala: function cambiarSala(horario, sala, index) {
+      horario.sala = sala;
+      Vue.set(this.myHorarios, index, horario);
+      console.log(this.myHorarios);
+    },
+    restarHoras: function restarHoras(inicio, fin) {
+      var inicioMinutos = parseInt(inicio.substr(3, 2));
+      var inicioHoras = parseInt(inicio.substr(0, 2));
+      var finMinutos = parseInt(fin.substr(3, 2));
+      var finHoras = parseInt(fin.substr(0, 2));
+      var transcurridoMinutos = finMinutos - inicioMinutos;
+      var transcurridoHoras = finHoras - inicioHoras;
+
+      if (transcurridoMinutos < 0) {
+        transcurridoHoras--;
+        transcurridoMinutos = 60 + transcurridoMinutos;
+      }
+
+      var horas = transcurridoHoras.toString();
+      var minutos = transcurridoMinutos.toString();
+
+      if (horas.length < 2) {
+        horas = "0" + horas;
+      }
+
+      if (minutos.length < 2) {
+        minutos = "0" + minutos;
+      }
+
+      return horas + ":" + minutos;
     }
   }
 });
@@ -42100,7 +42206,14 @@ var render = function() {
                 [
                   _c(
                     "div",
-                    { staticClass: "card", staticStyle: { height: "100vh" } },
+                    {
+                      staticClass: "card",
+                      staticStyle: {
+                        height: "100vh",
+                        "box-shadow":
+                          "0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)"
+                      }
+                    },
                     [
                       _c("div", { staticClass: "card-header" }, [
                         _vm._v("Solicitudes Pendientes")
@@ -42123,7 +42236,8 @@ var render = function() {
                                   index: index,
                                   solicitud: solicitud,
                                   horarios: _vm.hor_pendientes,
-                                  salas: _vm.salas
+                                  salas: _vm.salas,
+                                  horas: _vm.horas
                                 },
                                 on: { new: _vm.recargar }
                               })
@@ -42151,7 +42265,14 @@ var render = function() {
                 [
                   _c(
                     "div",
-                    { staticClass: "card", staticStyle: { height: "100vh" } },
+                    {
+                      staticClass: "card",
+                      staticStyle: {
+                        height: "100vh",
+                        "box-shadow":
+                          "0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)"
+                      }
+                    },
                     [
                       _c("div", { staticClass: "card-header" }, [
                         _vm._v("Solicitudes Atendidas")
@@ -42201,7 +42322,14 @@ var render = function() {
                 [
                   _c(
                     "div",
-                    { staticClass: "card", staticStyle: { height: "100vh" } },
+                    {
+                      staticClass: "card",
+                      staticStyle: {
+                        height: "100vh",
+                        "box-shadow":
+                          "0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)"
+                      }
+                    },
                     [
                       _c("div", { staticClass: "card-header" }, [
                         _vm._v("Solicitudes Asignadas")
@@ -42249,65 +42377,105 @@ var staticRenderFns = [
     var _vm = this
     var _h = _vm.$createElement
     var _c = _vm._self._c || _h
-    return _c("div", { staticClass: "card col-xs-2 bd-sidebar" }, [
+    return _c(
+      "div",
+      {
+        staticClass: "card col-xs-2 bd-sidebar",
+        staticStyle: {
+          "box-shadow":
+            "0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)"
+        }
+      },
+      [
+        _c(
+          "div",
+          {
+            staticClass: "nav flex-column nav-pills",
+            attrs: {
+              id: "v-pills-tab",
+              role: "tablist",
+              "aria-orientation": "vertical"
+            }
+          },
+          [
+            _c(
+              "a",
+              {
+                staticClass: "nav-link active",
+                attrs: {
+                  id: "v-pills-pendiente-tab",
+                  "data-toggle": "pill",
+                  href: "#v-pills-pendientes",
+                  role: "tab",
+                  "aria-controls": "v-pills-pendientes",
+                  "aria-selected": "true"
+                }
+              },
+              [_vm._v("Solicitudes Pendientes")]
+            ),
+            _vm._v(" "),
+            _c(
+              "a",
+              {
+                staticClass: "nav-link",
+                attrs: {
+                  id: "v-pills-atendida-tab",
+                  "data-toggle": "pill",
+                  href: "#v-pills-atendidas",
+                  role: "tab",
+                  "aria-controls": "v-pills-atendidas",
+                  "aria-selected": "false"
+                }
+              },
+              [_vm._v("Solicitudes Atendidas")]
+            ),
+            _vm._v(" "),
+            _c(
+              "a",
+              {
+                staticClass: "nav-link",
+                attrs: {
+                  id: "v-pills-asignadas-tab",
+                  "data-toggle": "pill",
+                  href: "#v-pills-asignadas",
+                  role: "tab",
+                  "aria-controls": "v-pills-asignadas",
+                  "aria-selected": "false"
+                }
+              },
+              [_vm._v("Solicitudes Asignadas")]
+            )
+          ]
+        )
+      ]
+    )
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("table", { staticClass: "table" }, [
       _c(
-        "div",
+        "thead",
         {
-          staticClass: "nav flex-column nav-pills",
-          attrs: {
-            id: "v-pills-tab",
-            role: "tablist",
-            "aria-orientation": "vertical"
-          }
+          staticStyle: { "box-shadow": "0px 10px 8px -6px rgba(0, 0, 0, 0.2)" }
         },
         [
-          _c(
-            "a",
-            {
-              staticClass: "nav-link active",
-              attrs: {
-                id: "v-pills-pendiente-tab",
-                "data-toggle": "pill",
-                href: "#v-pills-pendientes",
-                role: "tab",
-                "aria-controls": "v-pills-pendientes",
-                "aria-selected": "true"
-              }
-            },
-            [_vm._v("Solicitudes Pendientes")]
-          ),
-          _vm._v(" "),
-          _c(
-            "a",
-            {
-              staticClass: "nav-link",
-              attrs: {
-                id: "v-pills-atendida-tab",
-                "data-toggle": "pill",
-                href: "#v-pills-atendidas",
-                role: "tab",
-                "aria-controls": "v-pills-atendidas",
-                "aria-selected": "false"
-              }
-            },
-            [_vm._v("Solicitudes Atendidas")]
-          ),
-          _vm._v(" "),
-          _c(
-            "a",
-            {
-              staticClass: "nav-link",
-              attrs: {
-                id: "v-pills-asignadas-tab",
-                "data-toggle": "pill",
-                href: "#v-pills-asignadas",
-                role: "tab",
-                "aria-controls": "v-pills-asignadas",
-                "aria-selected": "false"
-              }
-            },
-            [_vm._v("Solicitudes Asignadas")]
-          )
+          _c("tr", [
+            _c("th", { staticStyle: { width: "20%" } }, [
+              _vm._v("Fecha Solicitud")
+            ]),
+            _vm._v(" "),
+            _c("th", { staticStyle: { width: "20%" } }, [_vm._v("Nombre")]),
+            _vm._v(" "),
+            _c("th", { staticStyle: { width: "20%" } }, [_vm._v("Asignatura")]),
+            _vm._v(" "),
+            _c("th", { staticStyle: { width: "20%" } }, [
+              _vm._v("Fecha Inicio")
+            ]),
+            _vm._v(" "),
+            _c("th", { staticStyle: { width: "20%" } }, [_vm._v("Fecha Fin")])
+          ])
         ]
       )
     ])
@@ -42317,21 +42485,29 @@ var staticRenderFns = [
     var _h = _vm.$createElement
     var _c = _vm._self._c || _h
     return _c("table", { staticClass: "table" }, [
-      _c("thead", [
-        _c("tr", [
-          _c("th", { staticStyle: { width: "20%" } }, [
-            _vm._v("Fecha Solicitud")
-          ]),
-          _vm._v(" "),
-          _c("th", { staticStyle: { width: "20%" } }, [_vm._v("Nombre")]),
-          _vm._v(" "),
-          _c("th", { staticStyle: { width: "20%" } }, [_vm._v("Asignatura")]),
-          _vm._v(" "),
-          _c("th", { staticStyle: { width: "20%" } }, [_vm._v("Fecha Inicio")]),
-          _vm._v(" "),
-          _c("th", { staticStyle: { width: "20%" } }, [_vm._v("Fecha Fin")])
-        ])
-      ])
+      _c(
+        "thead",
+        {
+          staticStyle: { "box-shadow": "0px 10px 8px -6px rgba(0, 0, 0, 0.2)" }
+        },
+        [
+          _c("tr", [
+            _c("th", { staticStyle: { width: "20%" } }, [
+              _vm._v("Fecha Solicitud")
+            ]),
+            _vm._v(" "),
+            _c("th", { staticStyle: { width: "20%" } }, [_vm._v("Nombre")]),
+            _vm._v(" "),
+            _c("th", { staticStyle: { width: "20%" } }, [_vm._v("Asignatura")]),
+            _vm._v(" "),
+            _c("th", { staticStyle: { width: "20%" } }, [
+              _vm._v("Fecha Inicio")
+            ]),
+            _vm._v(" "),
+            _c("th", { staticStyle: { width: "20%" } }, [_vm._v("Fecha Fin")])
+          ])
+        ]
+      )
     ])
   },
   function() {
@@ -42339,43 +42515,29 @@ var staticRenderFns = [
     var _h = _vm.$createElement
     var _c = _vm._self._c || _h
     return _c("table", { staticClass: "table" }, [
-      _c("thead", [
-        _c("tr", [
-          _c("th", { staticStyle: { width: "20%" } }, [
-            _vm._v("Fecha Solicitud")
-          ]),
-          _vm._v(" "),
-          _c("th", { staticStyle: { width: "20%" } }, [_vm._v("Nombre")]),
-          _vm._v(" "),
-          _c("th", { staticStyle: { width: "20%" } }, [_vm._v("Asignatura")]),
-          _vm._v(" "),
-          _c("th", { staticStyle: { width: "20%" } }, [_vm._v("Fecha Inicio")]),
-          _vm._v(" "),
-          _c("th", { staticStyle: { width: "20%" } }, [_vm._v("Fecha Fin")])
-        ])
-      ])
-    ])
-  },
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("table", { staticClass: "table" }, [
-      _c("thead", [
-        _c("tr", [
-          _c("th", { staticStyle: { width: "20%" } }, [
-            _vm._v("Fecha Solicitud")
-          ]),
-          _vm._v(" "),
-          _c("th", { staticStyle: { width: "20%" } }, [_vm._v("Nombre")]),
-          _vm._v(" "),
-          _c("th", { staticStyle: { width: "20%" } }, [_vm._v("Asignatura")]),
-          _vm._v(" "),
-          _c("th", { staticStyle: { width: "20%" } }, [_vm._v("Fecha Inicio")]),
-          _vm._v(" "),
-          _c("th", { staticStyle: { width: "20%" } }, [_vm._v("Fecha Fin")])
-        ])
-      ])
+      _c(
+        "thead",
+        {
+          staticStyle: { "box-shadow": "0px 10px 8px -6px rgba(0, 0, 0, 0.2)" }
+        },
+        [
+          _c("tr", [
+            _c("th", { staticStyle: { width: "20%" } }, [
+              _vm._v("Fecha Solicitud")
+            ]),
+            _vm._v(" "),
+            _c("th", { staticStyle: { width: "20%" } }, [_vm._v("Nombre")]),
+            _vm._v(" "),
+            _c("th", { staticStyle: { width: "20%" } }, [_vm._v("Asignatura")]),
+            _vm._v(" "),
+            _c("th", { staticStyle: { width: "20%" } }, [
+              _vm._v("Fecha Inicio")
+            ]),
+            _vm._v(" "),
+            _c("th", { staticStyle: { width: "20%" } }, [_vm._v("Fecha Fin")])
+          ])
+        ]
+      )
     ])
   }
 ]
@@ -42408,248 +42570,256 @@ var render = function() {
         staticStyle: { "border-collapse": "collapse" }
       },
       [
-        _c("tbody", [
-          _c(
-            "tr",
-            {
-              staticClass: "clickable collapse-row collapsed",
-              attrs: {
-                "data-toggle": "collapse",
-                "data-target": "#demo" + _vm.index
-              }
-            },
-            [
-              _c("td", { staticStyle: { width: "20%" } }, [
-                _vm._v(_vm._s(_vm.solicitud.FechaSol))
-              ]),
-              _vm._v(" "),
-              _c("td", { staticStyle: { width: "20%" } }, [
-                _vm._v(_vm._s(_vm.solicitud.FNyA))
-              ]),
-              _vm._v(" "),
-              _c("td", { staticStyle: { width: "20%" } }, [
-                _vm._v(_vm._s(_vm.solicitud.FNomAsignatura))
-              ]),
-              _vm._v(" "),
-              _c("td", { staticStyle: { width: "20%" } }, [
-                _vm._v(_vm._s(_vm.solicitud.FFechaISol))
-              ]),
-              _vm._v(" "),
-              _c("td", { staticStyle: { width: "20%" } }, [
-                _vm._v(_vm._s(_vm.solicitud.FFechaFSol))
-              ])
-            ]
-          ),
-          _vm._v(" "),
-          _c("tr", [
-            _c("td", { staticClass: "hiddenRow", attrs: { colspan: "5" } }, [
-              _c(
-                "div",
-                {
-                  staticClass: "collapse",
-                  attrs: { id: ["demo" + _vm.index] }
-                },
-                [
-                  _c(
-                    "div",
-                    {
-                      staticClass: "container-fluid card",
-                      staticStyle: { "background-color": "lightgray" }
-                    },
-                    [
-                      _c("div", { staticClass: "card-body row" }, [
-                        _c("div", { staticClass: "col-4" }, [
-                          _c("h6", [
-                            _c("label", [
-                              _c("b", [_vm._v("Cédula:")]),
-                              _vm._v(
-                                "\n                      " +
-                                  _vm._s(_vm.solicitud.FCedula) +
-                                  "\n                    "
-                              )
-                            ])
-                          ]),
-                          _vm._v(" "),
-                          _c("h6", [
-                            _c("label", [
-                              _c("b", [_vm._v("Programa Docente:")]),
-                              _vm._v(
-                                "\n                      " +
-                                  _vm._s(_vm.solicitud.FProDoc) +
-                                  "\n                    "
-                              )
-                            ])
-                          ]),
-                          _vm._v(" "),
-                          _c("h6", [
-                            _c("label", [
-                              _c("b", [_vm._v("Correo:")]),
-                              _vm._v(
-                                "\n                      " +
-                                  _vm._s(_vm.solicitud.FCorreoUTP) +
-                                  "\n                    "
-                              )
-                            ])
-                          ]),
-                          _vm._v(" "),
-                          _c("h6", [
-                            _c("label", [
-                              _c("b", [_vm._v("Correo Alterno:")]),
-                              _vm._v(
-                                "\n                      " +
-                                  _vm._s(_vm.solicitud.FCorreoAlt) +
-                                  "\n                    "
-                              )
-                            ])
-                          ]),
-                          _vm._v(" "),
-                          _c("h6", [
-                            _c("label", [
-                              _c("b", [_vm._v("Código Asignatura:")]),
-                              _vm._v(
-                                "\n                      " +
-                                  _vm._s(_vm.solicitud.FCodAsignatura) +
-                                  "\n                    "
-                              )
-                            ])
-                          ]),
-                          _vm._v(" "),
-                          _c("h6", [
-                            _c("label", [
-                              _c("b", [_vm._v("Grupo:")]),
-                              _vm._v(
-                                "\n                      " +
-                                  _vm._s(_vm.solicitud.FGrupo) +
-                                  "\n                    "
-                              )
-                            ])
-                          ]),
-                          _vm._v(" "),
-                          _c("h6", [
-                            _c("label", [
-                              _c("b", [_vm._v("Cantidad de Estudiantes:")]),
-                              _vm._v(
-                                "\n                      " +
-                                  _vm._s(_vm.solicitud.FEstudiantes) +
-                                  "\n                    "
-                              )
-                            ])
-                          ]),
-                          _vm._v(" "),
-                          _c("h6", [
-                            _c("label", [
-                              _c("b", [_vm._v("Software Necesario:")]),
-                              _vm._v(
-                                "\n                      " +
-                                  _vm._s(_vm.solicitud.FSoftwareN) +
-                                  "\n                    "
-                              )
-                            ])
-                          ])
-                        ]),
-                        _vm._v(" "),
-                        _c(
-                          "span",
-                          { staticClass: "border-right border-white col-6" },
-                          [
-                            _vm._m(0),
+        _c(
+          "tbody",
+          {
+            staticStyle: {
+              "box-shadow": "0px 10px 8px -6px rgba(0, 0, 0, 0.2)"
+            }
+          },
+          [
+            _c(
+              "tr",
+              {
+                staticClass: "clickable collapse-row collapsed",
+                attrs: {
+                  "data-toggle": "collapse",
+                  "data-target": "#demo" + _vm.index
+                }
+              },
+              [
+                _c("td", { staticStyle: { width: "20%" } }, [
+                  _vm._v(_vm._s(_vm.solicitud.FechaSol))
+                ]),
+                _vm._v(" "),
+                _c("td", { staticStyle: { width: "20%" } }, [
+                  _vm._v(_vm._s(_vm.solicitud.FNyA))
+                ]),
+                _vm._v(" "),
+                _c("td", { staticStyle: { width: "20%" } }, [
+                  _vm._v(_vm._s(_vm.solicitud.FNomAsignatura))
+                ]),
+                _vm._v(" "),
+                _c("td", { staticStyle: { width: "20%" } }, [
+                  _vm._v(_vm._s(_vm.solicitud.FFechaISol))
+                ]),
+                _vm._v(" "),
+                _c("td", { staticStyle: { width: "20%" } }, [
+                  _vm._v(_vm._s(_vm.solicitud.FFechaFSol))
+                ])
+              ]
+            ),
+            _vm._v(" "),
+            _c("tr", [
+              _c("td", { staticClass: "hiddenRow", attrs: { colspan: "5" } }, [
+                _c(
+                  "div",
+                  {
+                    staticClass: "collapse",
+                    attrs: { id: ["demo" + _vm.index] }
+                  },
+                  [
+                    _c(
+                      "div",
+                      {
+                        staticClass: "container-fluid card",
+                        staticStyle: { "background-color": "lightgray" }
+                      },
+                      [
+                        _c("div", { staticClass: "card-body row" }, [
+                          _c("div", { staticClass: "col-4" }, [
+                            _c("h6", [
+                              _c("label", [
+                                _c("b", [_vm._v("Cédula:")]),
+                                _vm._v(
+                                  "\n                      " +
+                                    _vm._s(_vm.solicitud.FCedula) +
+                                    "\n                    "
+                                )
+                              ])
+                            ]),
                             _vm._v(" "),
-                            _vm._m(1),
+                            _c("h6", [
+                              _c("label", [
+                                _c("b", [_vm._v("Programa Docente:")]),
+                                _vm._v(
+                                  "\n                      " +
+                                    _vm._s(_vm.solicitud.FProDoc) +
+                                    "\n                    "
+                                )
+                              ])
+                            ]),
                             _vm._v(" "),
-                            _vm._l(_vm.myHorarios, function(horario) {
-                              return _c(
+                            _c("h6", [
+                              _c("label", [
+                                _c("b", [_vm._v("Correo:")]),
+                                _vm._v(
+                                  "\n                      " +
+                                    _vm._s(_vm.solicitud.FCorreoUTP) +
+                                    "\n                    "
+                                )
+                              ])
+                            ]),
+                            _vm._v(" "),
+                            _c("h6", [
+                              _c("label", [
+                                _c("b", [_vm._v("Correo Alterno:")]),
+                                _vm._v(
+                                  "\n                      " +
+                                    _vm._s(_vm.solicitud.FCorreoAlt) +
+                                    "\n                    "
+                                )
+                              ])
+                            ]),
+                            _vm._v(" "),
+                            _c("h6", [
+                              _c("label", [
+                                _c("b", [_vm._v("Código Asignatura:")]),
+                                _vm._v(
+                                  "\n                      " +
+                                    _vm._s(_vm.solicitud.FCodAsignatura) +
+                                    "\n                    "
+                                )
+                              ])
+                            ]),
+                            _vm._v(" "),
+                            _c("h6", [
+                              _c("label", [
+                                _c("b", [_vm._v("Grupo:")]),
+                                _vm._v(
+                                  "\n                      " +
+                                    _vm._s(_vm.solicitud.FGrupo) +
+                                    "\n                    "
+                                )
+                              ])
+                            ]),
+                            _vm._v(" "),
+                            _c("h6", [
+                              _c("label", [
+                                _c("b", [_vm._v("Cantidad de Estudiantes:")]),
+                                _vm._v(
+                                  "\n                      " +
+                                    _vm._s(_vm.solicitud.FEstudiantes) +
+                                    "\n                    "
+                                )
+                              ])
+                            ]),
+                            _vm._v(" "),
+                            _c("h6", [
+                              _c("label", [
+                                _c("b", [_vm._v("Software Necesario:")]),
+                                _vm._v(
+                                  "\n                      " +
+                                    _vm._s(_vm.solicitud.FSoftwareN) +
+                                    "\n                    "
+                                )
+                              ])
+                            ])
+                          ]),
+                          _vm._v(" "),
+                          _c(
+                            "span",
+                            { staticClass: "border-right border-white col-6" },
+                            [
+                              _vm._m(0),
+                              _vm._v(" "),
+                              _vm._m(1),
+                              _vm._v(" "),
+                              _vm._l(_vm.myHorarios, function(horario) {
+                                return _c(
+                                  "div",
+                                  {
+                                    key: horario.idMásHorarios,
+                                    staticClass: "row"
+                                  },
+                                  [
+                                    _c("div", { staticClass: "col-3" }, [
+                                      _c("label", { attrs: { for: "" } }, [
+                                        _vm._v(_vm._s(horario.MDia))
+                                      ])
+                                    ]),
+                                    _vm._v(" "),
+                                    _c("div", { staticClass: "col-3" }, [
+                                      _c("label", { attrs: { for: "" } }, [
+                                        _vm._v(_vm._s(horario.MHorarioD))
+                                      ])
+                                    ]),
+                                    _vm._v(" "),
+                                    _c("div", { staticClass: "col-3" }, [
+                                      _c("label", { attrs: { for: "" } }, [
+                                        _vm._v(_vm._s(horario.MHorarioH))
+                                      ])
+                                    ])
+                                  ]
+                                )
+                              })
+                            ],
+                            2
+                          ),
+                          _vm._v(" "),
+                          _c(
+                            "div",
+                            {
+                              staticClass: "col-2",
+                              staticStyle: {
+                                display: "flex",
+                                "align-items": "center",
+                                "justify-content": "center"
+                              }
+                            },
+                            [
+                              _c(
                                 "div",
                                 {
-                                  key: horario.idMásHorarios,
-                                  staticClass: "row"
+                                  staticClass: "btn-group",
+                                  attrs: {
+                                    role: "group",
+                                    "aria-label": "Basic example"
+                                  }
                                 },
                                 [
-                                  _c("div", { staticClass: "col-3" }, [
-                                    _c("label", { attrs: { for: "" } }, [
-                                      _vm._v(_vm._s(horario.MDia))
-                                    ])
-                                  ]),
+                                  _c(
+                                    "button",
+                                    {
+                                      staticClass: "btn btn-primary",
+                                      attrs: { type: "button" },
+                                      on: {
+                                        click: function($event) {
+                                          $event.preventDefault()
+                                          return _vm.asignar($event)
+                                        }
+                                      }
+                                    },
+                                    [_vm._v("Asignar de Nuevo")]
+                                  ),
                                   _vm._v(" "),
-                                  _c("div", { staticClass: "col-3" }, [
-                                    _c("label", { attrs: { for: "" } }, [
-                                      _vm._v(_vm._s(horario.MHorarioD))
-                                    ])
-                                  ]),
-                                  _vm._v(" "),
-                                  _c("div", { staticClass: "col-3" }, [
-                                    _c("label", { attrs: { for: "" } }, [
-                                      _vm._v(_vm._s(horario.MHorarioH))
-                                    ])
-                                  ])
+                                  _c(
+                                    "button",
+                                    {
+                                      staticClass: "btn btn-secondary",
+                                      attrs: { type: "button" },
+                                      on: {
+                                        click: function($event) {
+                                          $event.preventDefault()
+                                          return _vm.edit($event)
+                                        }
+                                      }
+                                    },
+                                    [_vm._v("Editar")]
+                                  )
                                 ]
                               )
-                            })
-                          ],
-                          2
-                        ),
-                        _vm._v(" "),
-                        _c(
-                          "div",
-                          {
-                            staticClass: "col-2",
-                            staticStyle: {
-                              display: "flex",
-                              "align-items": "center",
-                              "justify-content": "center"
-                            }
-                          },
-                          [
-                            _c(
-                              "div",
-                              {
-                                staticClass: "btn-group",
-                                attrs: {
-                                  role: "group",
-                                  "aria-label": "Basic example"
-                                }
-                              },
-                              [
-                                _c(
-                                  "button",
-                                  {
-                                    staticClass: "btn btn-primary",
-                                    attrs: { type: "button" },
-                                    on: {
-                                      click: function($event) {
-                                        $event.preventDefault()
-                                        return _vm.asignar($event)
-                                      }
-                                    }
-                                  },
-                                  [_vm._v("Asignar de Nuevo")]
-                                ),
-                                _vm._v(" "),
-                                _c(
-                                  "button",
-                                  {
-                                    staticClass: "btn btn-secondary",
-                                    attrs: { type: "button" },
-                                    on: {
-                                      click: function($event) {
-                                        $event.preventDefault()
-                                        return _vm.edit($event)
-                                      }
-                                    }
-                                  },
-                                  [_vm._v("Editar")]
-                                )
-                              ]
-                            )
-                          ]
-                        )
-                      ])
-                    ]
-                  )
-                ]
-              )
+                            ]
+                          )
+                        ])
+                      ]
+                    )
+                  ]
+                )
+              ])
             ])
-          ])
-        ])
+          ]
+        )
       ]
     ),
     _vm._v(" "),
@@ -42770,248 +42940,256 @@ var render = function() {
         staticStyle: { "border-collapse": "collapse" }
       },
       [
-        _c("tbody", [
-          _c(
-            "tr",
-            {
-              staticClass: "clickable collapse-row collapsed",
-              attrs: {
-                "data-toggle": "collapse",
-                "data-target": "#demo" + _vm.index
-              }
-            },
-            [
-              _c("td", { staticStyle: { width: "20%" } }, [
-                _vm._v(_vm._s(_vm.solicitud.FechaSol))
-              ]),
-              _vm._v(" "),
-              _c("td", { staticStyle: { width: "20%" } }, [
-                _vm._v(_vm._s(_vm.solicitud.FNyA))
-              ]),
-              _vm._v(" "),
-              _c("td", { staticStyle: { width: "20%" } }, [
-                _vm._v(_vm._s(_vm.solicitud.FNomAsignatura))
-              ]),
-              _vm._v(" "),
-              _c("td", { staticStyle: { width: "20%" } }, [
-                _vm._v(_vm._s(_vm.solicitud.FFechaISol))
-              ]),
-              _vm._v(" "),
-              _c("td", { staticStyle: { width: "20%" } }, [
-                _vm._v(_vm._s(_vm.solicitud.FFechaFSol))
-              ])
-            ]
-          ),
-          _vm._v(" "),
-          _c("tr", [
-            _c("td", { staticClass: "hiddenRow", attrs: { colspan: "5" } }, [
-              _c(
-                "div",
-                {
-                  staticClass: "collapse",
-                  attrs: { id: ["demo" + _vm.index] }
-                },
-                [
-                  _c(
-                    "div",
-                    {
-                      staticClass: "container-fluid card",
-                      staticStyle: { "background-color": "lightgray" }
-                    },
-                    [
-                      _c("div", { staticClass: "card-body row" }, [
-                        _c("div", { staticClass: "col-4" }, [
-                          _c("h6", [
-                            _c("label", [
-                              _c("b", [_vm._v("Cédula:")]),
-                              _vm._v(
-                                "\n                      " +
-                                  _vm._s(_vm.solicitud.FCedula) +
-                                  "\n                    "
-                              )
-                            ])
-                          ]),
-                          _vm._v(" "),
-                          _c("h6", [
-                            _c("label", [
-                              _c("b", [_vm._v("Programa Docente:")]),
-                              _vm._v(
-                                "\n                      " +
-                                  _vm._s(_vm.solicitud.FProDoc) +
-                                  "\n                    "
-                              )
-                            ])
-                          ]),
-                          _vm._v(" "),
-                          _c("h6", [
-                            _c("label", [
-                              _c("b", [_vm._v("Correo:")]),
-                              _vm._v(
-                                "\n                      " +
-                                  _vm._s(_vm.solicitud.FCorreoUTP) +
-                                  "\n                    "
-                              )
-                            ])
-                          ]),
-                          _vm._v(" "),
-                          _c("h6", [
-                            _c("label", [
-                              _c("b", [_vm._v("Correo Alterno:")]),
-                              _vm._v(
-                                "\n                      " +
-                                  _vm._s(_vm.solicitud.FCorreoAlt) +
-                                  "\n                    "
-                              )
-                            ])
-                          ]),
-                          _vm._v(" "),
-                          _c("h6", [
-                            _c("label", [
-                              _c("b", [_vm._v("Código Asignatura:")]),
-                              _vm._v(
-                                "\n                      " +
-                                  _vm._s(_vm.solicitud.FCodAsignatura) +
-                                  "\n                    "
-                              )
-                            ])
-                          ]),
-                          _vm._v(" "),
-                          _c("h6", [
-                            _c("label", [
-                              _c("b", [_vm._v("Grupo:")]),
-                              _vm._v(
-                                "\n                      " +
-                                  _vm._s(_vm.solicitud.FGrupo) +
-                                  "\n                    "
-                              )
-                            ])
-                          ]),
-                          _vm._v(" "),
-                          _c("h6", [
-                            _c("label", [
-                              _c("b", [_vm._v("Cantidad de Estudiantes:")]),
-                              _vm._v(
-                                "\n                      " +
-                                  _vm._s(_vm.solicitud.FEstudiantes) +
-                                  "\n                    "
-                              )
-                            ])
-                          ]),
-                          _vm._v(" "),
-                          _c("h6", [
-                            _c("label", [
-                              _c("b", [_vm._v("Software Necesario:")]),
-                              _vm._v(
-                                "\n                      " +
-                                  _vm._s(_vm.solicitud.FSoftwareN) +
-                                  "\n                    "
-                              )
-                            ])
-                          ])
-                        ]),
-                        _vm._v(" "),
-                        _c(
-                          "span",
-                          { staticClass: "border-right border-white col-6" },
-                          [
-                            _vm._m(0),
+        _c(
+          "tbody",
+          {
+            staticStyle: {
+              "box-shadow": "0px 10px 8px -6px rgba(0, 0, 0, 0.2)"
+            }
+          },
+          [
+            _c(
+              "tr",
+              {
+                staticClass: "clickable collapse-row collapsed",
+                attrs: {
+                  "data-toggle": "collapse",
+                  "data-target": "#demo" + _vm.index
+                }
+              },
+              [
+                _c("td", { staticStyle: { width: "20%" } }, [
+                  _vm._v(_vm._s(_vm.solicitud.FechaSol))
+                ]),
+                _vm._v(" "),
+                _c("td", { staticStyle: { width: "20%" } }, [
+                  _vm._v(_vm._s(_vm.solicitud.FNyA))
+                ]),
+                _vm._v(" "),
+                _c("td", { staticStyle: { width: "20%" } }, [
+                  _vm._v(_vm._s(_vm.solicitud.FNomAsignatura))
+                ]),
+                _vm._v(" "),
+                _c("td", { staticStyle: { width: "20%" } }, [
+                  _vm._v(_vm._s(_vm.solicitud.FFechaISol))
+                ]),
+                _vm._v(" "),
+                _c("td", { staticStyle: { width: "20%" } }, [
+                  _vm._v(_vm._s(_vm.solicitud.FFechaFSol))
+                ])
+              ]
+            ),
+            _vm._v(" "),
+            _c("tr", [
+              _c("td", { staticClass: "hiddenRow", attrs: { colspan: "5" } }, [
+                _c(
+                  "div",
+                  {
+                    staticClass: "collapse",
+                    attrs: { id: ["demo" + _vm.index] }
+                  },
+                  [
+                    _c(
+                      "div",
+                      {
+                        staticClass: "container-fluid card",
+                        staticStyle: { "background-color": "lightgray" }
+                      },
+                      [
+                        _c("div", { staticClass: "card-body row" }, [
+                          _c("div", { staticClass: "col-4" }, [
+                            _c("h6", [
+                              _c("label", [
+                                _c("b", [_vm._v("Cédula:")]),
+                                _vm._v(
+                                  "\n                      " +
+                                    _vm._s(_vm.solicitud.FCedula) +
+                                    "\n                    "
+                                )
+                              ])
+                            ]),
                             _vm._v(" "),
-                            _vm._m(1),
+                            _c("h6", [
+                              _c("label", [
+                                _c("b", [_vm._v("Programa Docente:")]),
+                                _vm._v(
+                                  "\n                      " +
+                                    _vm._s(_vm.solicitud.FProDoc) +
+                                    "\n                    "
+                                )
+                              ])
+                            ]),
                             _vm._v(" "),
-                            _vm._l(_vm.myHorarios, function(horario) {
-                              return _c(
+                            _c("h6", [
+                              _c("label", [
+                                _c("b", [_vm._v("Correo:")]),
+                                _vm._v(
+                                  "\n                      " +
+                                    _vm._s(_vm.solicitud.FCorreoUTP) +
+                                    "\n                    "
+                                )
+                              ])
+                            ]),
+                            _vm._v(" "),
+                            _c("h6", [
+                              _c("label", [
+                                _c("b", [_vm._v("Correo Alterno:")]),
+                                _vm._v(
+                                  "\n                      " +
+                                    _vm._s(_vm.solicitud.FCorreoAlt) +
+                                    "\n                    "
+                                )
+                              ])
+                            ]),
+                            _vm._v(" "),
+                            _c("h6", [
+                              _c("label", [
+                                _c("b", [_vm._v("Código Asignatura:")]),
+                                _vm._v(
+                                  "\n                      " +
+                                    _vm._s(_vm.solicitud.FCodAsignatura) +
+                                    "\n                    "
+                                )
+                              ])
+                            ]),
+                            _vm._v(" "),
+                            _c("h6", [
+                              _c("label", [
+                                _c("b", [_vm._v("Grupo:")]),
+                                _vm._v(
+                                  "\n                      " +
+                                    _vm._s(_vm.solicitud.FGrupo) +
+                                    "\n                    "
+                                )
+                              ])
+                            ]),
+                            _vm._v(" "),
+                            _c("h6", [
+                              _c("label", [
+                                _c("b", [_vm._v("Cantidad de Estudiantes:")]),
+                                _vm._v(
+                                  "\n                      " +
+                                    _vm._s(_vm.solicitud.FEstudiantes) +
+                                    "\n                    "
+                                )
+                              ])
+                            ]),
+                            _vm._v(" "),
+                            _c("h6", [
+                              _c("label", [
+                                _c("b", [_vm._v("Software Necesario:")]),
+                                _vm._v(
+                                  "\n                      " +
+                                    _vm._s(_vm.solicitud.FSoftwareN) +
+                                    "\n                    "
+                                )
+                              ])
+                            ])
+                          ]),
+                          _vm._v(" "),
+                          _c(
+                            "span",
+                            { staticClass: "border-right border-white col-6" },
+                            [
+                              _vm._m(0),
+                              _vm._v(" "),
+                              _vm._m(1),
+                              _vm._v(" "),
+                              _vm._l(_vm.myHorarios, function(horario) {
+                                return _c(
+                                  "div",
+                                  {
+                                    key: horario.idMásHorarios,
+                                    staticClass: "row"
+                                  },
+                                  [
+                                    _c("div", { staticClass: "col-3" }, [
+                                      _c("label", { attrs: { for: "" } }, [
+                                        _vm._v(_vm._s(horario.MDia))
+                                      ])
+                                    ]),
+                                    _vm._v(" "),
+                                    _c("div", { staticClass: "col-3" }, [
+                                      _c("label", { attrs: { for: "" } }, [
+                                        _vm._v(_vm._s(horario.MHorarioD))
+                                      ])
+                                    ]),
+                                    _vm._v(" "),
+                                    _c("div", { staticClass: "col-3" }, [
+                                      _c("label", { attrs: { for: "" } }, [
+                                        _vm._v(_vm._s(horario.MHorarioH))
+                                      ])
+                                    ])
+                                  ]
+                                )
+                              })
+                            ],
+                            2
+                          ),
+                          _vm._v(" "),
+                          _c(
+                            "div",
+                            {
+                              staticClass: "col-2",
+                              staticStyle: {
+                                display: "flex",
+                                "align-items": "center",
+                                "justify-content": "center"
+                              }
+                            },
+                            [
+                              _c(
                                 "div",
                                 {
-                                  key: horario.idMásHorarios,
-                                  staticClass: "row"
+                                  staticClass: "btn-group",
+                                  attrs: {
+                                    role: "group",
+                                    "aria-label": "Basic example"
+                                  }
                                 },
                                 [
-                                  _c("div", { staticClass: "col-3" }, [
-                                    _c("label", { attrs: { for: "" } }, [
-                                      _vm._v(_vm._s(horario.MDia))
-                                    ])
-                                  ]),
+                                  _c(
+                                    "button",
+                                    {
+                                      staticClass: "btn btn-primary",
+                                      attrs: { type: "button" },
+                                      on: {
+                                        click: function($event) {
+                                          $event.preventDefault()
+                                          return _vm.asignar($event)
+                                        }
+                                      }
+                                    },
+                                    [_vm._v("Notificar")]
+                                  ),
                                   _vm._v(" "),
-                                  _c("div", { staticClass: "col-3" }, [
-                                    _c("label", { attrs: { for: "" } }, [
-                                      _vm._v(_vm._s(horario.MHorarioD))
-                                    ])
-                                  ]),
-                                  _vm._v(" "),
-                                  _c("div", { staticClass: "col-3" }, [
-                                    _c("label", { attrs: { for: "" } }, [
-                                      _vm._v(_vm._s(horario.MHorarioH))
-                                    ])
-                                  ])
+                                  _c(
+                                    "button",
+                                    {
+                                      staticClass: "btn btn-secondary",
+                                      attrs: { type: "button" },
+                                      on: {
+                                        click: function($event) {
+                                          $event.preventDefault()
+                                          return _vm.edit($event)
+                                        }
+                                      }
+                                    },
+                                    [_vm._v("Editar")]
+                                  )
                                 ]
                               )
-                            })
-                          ],
-                          2
-                        ),
-                        _vm._v(" "),
-                        _c(
-                          "div",
-                          {
-                            staticClass: "col-2",
-                            staticStyle: {
-                              display: "flex",
-                              "align-items": "center",
-                              "justify-content": "center"
-                            }
-                          },
-                          [
-                            _c(
-                              "div",
-                              {
-                                staticClass: "btn-group",
-                                attrs: {
-                                  role: "group",
-                                  "aria-label": "Basic example"
-                                }
-                              },
-                              [
-                                _c(
-                                  "button",
-                                  {
-                                    staticClass: "btn btn-primary",
-                                    attrs: { type: "button" },
-                                    on: {
-                                      click: function($event) {
-                                        $event.preventDefault()
-                                        return _vm.asignar($event)
-                                      }
-                                    }
-                                  },
-                                  [_vm._v("Notificar")]
-                                ),
-                                _vm._v(" "),
-                                _c(
-                                  "button",
-                                  {
-                                    staticClass: "btn btn-secondary",
-                                    attrs: { type: "button" },
-                                    on: {
-                                      click: function($event) {
-                                        $event.preventDefault()
-                                        return _vm.edit($event)
-                                      }
-                                    }
-                                  },
-                                  [_vm._v("Editar")]
-                                )
-                              ]
-                            )
-                          ]
-                        )
-                      ])
-                    ]
-                  )
-                ]
-              )
+                            ]
+                          )
+                        ])
+                      ]
+                    )
+                  ]
+                )
+              ])
             ])
-          ])
-        ])
+          ]
+        )
       ]
     ),
     _vm._v(" "),
@@ -43132,287 +43310,312 @@ var render = function() {
         staticStyle: { "border-collapse": "collapse" }
       },
       [
-        _c("tbody", [
-          _c(
-            "tr",
-            {
-              staticClass: "clickable collapse-row collapsed",
-              attrs: {
-                "data-toggle": "collapse",
-                "data-target": "#demo" + _vm.index
-              }
-            },
-            [
-              _c("td", { staticStyle: { width: "20%" } }, [
-                _vm._v(_vm._s(_vm.solicitud.FechaSol))
-              ]),
-              _vm._v(" "),
-              _c("td", { staticStyle: { width: "20%" } }, [
-                _vm._v(_vm._s(_vm.solicitud.FNyA))
-              ]),
-              _vm._v(" "),
-              _c("td", { staticStyle: { width: "20%" } }, [
-                _vm._v(_vm._s(_vm.solicitud.FNomAsignatura))
-              ]),
-              _vm._v(" "),
-              _c("td", { staticStyle: { width: "20%" } }, [
-                _vm._v(_vm._s(_vm.solicitud.FFechaISol))
-              ]),
-              _vm._v(" "),
-              _c("td", { staticStyle: { width: "20%" } }, [
-                _vm._v(_vm._s(_vm.solicitud.FFechaFSol))
-              ])
-            ]
-          ),
-          _vm._v(" "),
-          _c("tr", [
-            _c("td", { staticClass: "hiddenRow", attrs: { colspan: "5" } }, [
-              _c(
-                "div",
-                {
-                  staticClass: "collapse",
-                  attrs: { id: ["demo" + _vm.index] }
-                },
-                [
-                  _c(
-                    "div",
-                    {
-                      staticClass: "container-fluid card",
-                      staticStyle: { "background-color": "lightgray" }
-                    },
-                    [
-                      _c("div", { staticClass: "card-body row" }, [
-                        _c("div", { staticClass: "col-4" }, [
-                          _c("h6", [
-                            _c("label", [
-                              _c("b", [_vm._v("Cédula:")]),
-                              _vm._v(
-                                "\n                      " +
-                                  _vm._s(_vm.solicitud.FCedula) +
-                                  "\n                    "
-                              )
-                            ])
-                          ]),
-                          _vm._v(" "),
-                          _c("h6", [
-                            _c("label", [
-                              _c("b", [_vm._v("Programa Docente:")]),
-                              _vm._v(
-                                "\n                      " +
-                                  _vm._s(_vm.solicitud.FProDoc) +
-                                  "\n                    "
-                              )
-                            ])
-                          ]),
-                          _vm._v(" "),
-                          _c("h6", [
-                            _c("label", [
-                              _c("b", [_vm._v("Correo:")]),
-                              _vm._v(
-                                "\n                      " +
-                                  _vm._s(_vm.solicitud.FCorreoUTP) +
-                                  "\n                    "
-                              )
-                            ])
-                          ]),
-                          _vm._v(" "),
-                          _c("h6", [
-                            _c("label", [
-                              _c("b", [_vm._v("Correo Alterno:")]),
-                              _vm._v(
-                                "\n                      " +
-                                  _vm._s(_vm.solicitud.FCorreoAlt) +
-                                  "\n                    "
-                              )
-                            ])
-                          ]),
-                          _vm._v(" "),
-                          _c("h6", [
-                            _c("label", [
-                              _c("b", [_vm._v("Código Asignatura:")]),
-                              _vm._v(
-                                "\n                      " +
-                                  _vm._s(_vm.solicitud.FCodAsignatura) +
-                                  "\n                    "
-                              )
-                            ])
-                          ]),
-                          _vm._v(" "),
-                          _c("h6", [
-                            _c("label", [
-                              _c("b", [_vm._v("Grupo:")]),
-                              _vm._v(
-                                "\n                      " +
-                                  _vm._s(_vm.solicitud.FGrupo) +
-                                  "\n                    "
-                              )
-                            ])
-                          ]),
-                          _vm._v(" "),
-                          _c("h6", [
-                            _c("label", [
-                              _c("b", [_vm._v("Cantidad de Estudiantes:")]),
-                              _vm._v(
-                                "\n                      " +
-                                  _vm._s(_vm.solicitud.FEstudiantes) +
-                                  "\n                    "
-                              )
-                            ])
-                          ]),
-                          _vm._v(" "),
-                          _c("h6", [
-                            _c("label", [
-                              _c("b", [_vm._v("Software Necesario:")]),
-                              _vm._v(
-                                "\n                      " +
-                                  _vm._s(_vm.solicitud.FSoftwareN) +
-                                  "\n                    "
-                              )
-                            ])
-                          ])
-                        ]),
-                        _vm._v(" "),
-                        _c(
-                          "span",
-                          { staticClass: "border-right border-white col-6" },
-                          [
-                            _vm._m(0),
+        _c(
+          "tbody",
+          {
+            staticStyle: {
+              "box-shadow": "0px 10px 8px -6px rgba(0, 0, 0, 0.2)"
+            }
+          },
+          [
+            _c(
+              "tr",
+              {
+                staticClass: "clickable collapse-row collapsed",
+                attrs: {
+                  "data-toggle": "collapse",
+                  "data-target": "#demo" + _vm.index
+                }
+              },
+              [
+                _c("td", { staticStyle: { width: "20%" } }, [
+                  _vm._v(_vm._s(_vm.solicitud.FechaSol))
+                ]),
+                _vm._v(" "),
+                _c("td", { staticStyle: { width: "20%" } }, [
+                  _vm._v(_vm._s(_vm.solicitud.FNyA))
+                ]),
+                _vm._v(" "),
+                _c("td", { staticStyle: { width: "20%" } }, [
+                  _vm._v(_vm._s(_vm.solicitud.FNomAsignatura))
+                ]),
+                _vm._v(" "),
+                _c("td", { staticStyle: { width: "20%" } }, [
+                  _vm._v(_vm._s(_vm.solicitud.FFechaISol))
+                ]),
+                _vm._v(" "),
+                _c("td", { staticStyle: { width: "20%" } }, [
+                  _vm._v(_vm._s(_vm.solicitud.FFechaFSol))
+                ])
+              ]
+            ),
+            _vm._v(" "),
+            _c("tr", [
+              _c("td", { staticClass: "hiddenRow", attrs: { colspan: "5" } }, [
+                _c(
+                  "div",
+                  {
+                    staticClass: "collapse",
+                    attrs: { id: ["demo" + _vm.index] }
+                  },
+                  [
+                    _c(
+                      "div",
+                      {
+                        staticClass: "container-fluid card",
+                        staticStyle: { "background-color": "lightgray" }
+                      },
+                      [
+                        _c("div", { staticClass: "card-body row" }, [
+                          _c("div", { staticClass: "col-4" }, [
+                            _c("h6", [
+                              _c("label", [
+                                _c("b", [_vm._v("Cédula:")]),
+                                _vm._v(
+                                  "\n                      " +
+                                    _vm._s(_vm.solicitud.FCedula) +
+                                    "\n                    "
+                                )
+                              ])
+                            ]),
                             _vm._v(" "),
-                            _vm._m(1),
+                            _c("h6", [
+                              _c("label", [
+                                _c("b", [_vm._v("Programa Docente:")]),
+                                _vm._v(
+                                  "\n                      " +
+                                    _vm._s(_vm.solicitud.FProDoc) +
+                                    "\n                    "
+                                )
+                              ])
+                            ]),
                             _vm._v(" "),
-                            _vm._l(_vm.myHorarios, function(horario) {
-                              return _c(
+                            _c("h6", [
+                              _c("label", [
+                                _c("b", [_vm._v("Correo:")]),
+                                _vm._v(
+                                  "\n                      " +
+                                    _vm._s(_vm.solicitud.FCorreoUTP) +
+                                    "\n                    "
+                                )
+                              ])
+                            ]),
+                            _vm._v(" "),
+                            _c("h6", [
+                              _c("label", [
+                                _c("b", [_vm._v("Correo Alterno:")]),
+                                _vm._v(
+                                  "\n                      " +
+                                    _vm._s(_vm.solicitud.FCorreoAlt) +
+                                    "\n                    "
+                                )
+                              ])
+                            ]),
+                            _vm._v(" "),
+                            _c("h6", [
+                              _c("label", [
+                                _c("b", [_vm._v("Código Asignatura:")]),
+                                _vm._v(
+                                  "\n                      " +
+                                    _vm._s(_vm.solicitud.FCodAsignatura) +
+                                    "\n                    "
+                                )
+                              ])
+                            ]),
+                            _vm._v(" "),
+                            _c("h6", [
+                              _c("label", [
+                                _c("b", [_vm._v("Grupo:")]),
+                                _vm._v(
+                                  "\n                      " +
+                                    _vm._s(_vm.solicitud.FGrupo) +
+                                    "\n                    "
+                                )
+                              ])
+                            ]),
+                            _vm._v(" "),
+                            _c("h6", [
+                              _c("label", [
+                                _c("b", [_vm._v("Cantidad de Estudiantes:")]),
+                                _vm._v(
+                                  "\n                      " +
+                                    _vm._s(_vm.solicitud.FEstudiantes) +
+                                    "\n                    "
+                                )
+                              ])
+                            ]),
+                            _vm._v(" "),
+                            _c("h6", [
+                              _c("label", [
+                                _c("b", [_vm._v("Software Necesario:")]),
+                                _vm._v(
+                                  "\n                      " +
+                                    _vm._s(_vm.solicitud.FSoftwareN) +
+                                    "\n                    "
+                                )
+                              ])
+                            ])
+                          ]),
+                          _vm._v(" "),
+                          _c(
+                            "span",
+                            { staticClass: "border-right border-white col-6" },
+                            [
+                              _vm._m(0),
+                              _vm._v(" "),
+                              _vm._m(1),
+                              _vm._v(" "),
+                              _vm._l(_vm.myHorarios, function(horario, index1) {
+                                return _c(
+                                  "div",
+                                  { key: index1, staticClass: "row" },
+                                  [
+                                    _c("div", { staticClass: "col-3" }, [
+                                      _c("label", { attrs: { for: "" } }, [
+                                        _vm._v(_vm._s(horario.MDia))
+                                      ])
+                                    ]),
+                                    _vm._v(" "),
+                                    _c("div", { staticClass: "col-3" }, [
+                                      _c("label", { attrs: { for: "" } }, [
+                                        _vm._v(_vm._s(horario.MHorarioD))
+                                      ])
+                                    ]),
+                                    _vm._v(" "),
+                                    _c("div", { staticClass: "col-3" }, [
+                                      _c("label", { attrs: { for: "" } }, [
+                                        _vm._v(_vm._s(horario.MHorarioH))
+                                      ])
+                                    ]),
+                                    _vm._v(" "),
+                                    _c("div", { staticClass: "col-3" }, [
+                                      _c("div", { staticClass: "dropdown" }, [
+                                        _c(
+                                          "button",
+                                          {
+                                            staticClass:
+                                              "btn btn-secondary btn-sm dropdown-toggle",
+                                            attrs: {
+                                              type: "button",
+                                              "data-toggle": "dropdown",
+                                              "aria-haspopup": "true",
+                                              "aria-expanded": "false"
+                                            }
+                                          },
+                                          [_vm._v(_vm._s(horario.sala))]
+                                        ),
+                                        _vm._v(" "),
+                                        _c(
+                                          "ul",
+                                          { staticClass: "dropdown-menu" },
+                                          [
+                                            _c(
+                                              "div",
+                                              {
+                                                staticClass: "scroll",
+                                                staticStyle: {
+                                                  "max-height": "150px"
+                                                }
+                                              },
+                                              _vm._l(horario.salas, function(
+                                                sala,
+                                                index
+                                              ) {
+                                                return _c(
+                                                  "li",
+                                                  {
+                                                    key: index,
+                                                    staticClass:
+                                                      "dropdown-item",
+                                                    on: {
+                                                      click: function($event) {
+                                                        return _vm.cambiarSala(
+                                                          horario,
+                                                          sala.Nombre,
+                                                          index1
+                                                        )
+                                                      }
+                                                    }
+                                                  },
+                                                  [_vm._v(_vm._s(sala.Nombre))]
+                                                )
+                                              }),
+                                              0
+                                            )
+                                          ]
+                                        )
+                                      ])
+                                    ])
+                                  ]
+                                )
+                              })
+                            ],
+                            2
+                          ),
+                          _vm._v(" "),
+                          _c(
+                            "div",
+                            {
+                              staticClass: "col-2",
+                              staticStyle: {
+                                display: "flex",
+                                "align-items": "center",
+                                "justify-content": "center"
+                              }
+                            },
+                            [
+                              _c(
                                 "div",
                                 {
-                                  key: horario.idMásHorarios,
-                                  staticClass: "row"
+                                  staticClass: "btn-group",
+                                  attrs: {
+                                    role: "group",
+                                    "aria-label": "Basic example"
+                                  }
                                 },
                                 [
-                                  _c("div", { staticClass: "col-3" }, [
-                                    _c("label", { attrs: { for: "" } }, [
-                                      _vm._v(_vm._s(horario.MDia))
-                                    ])
-                                  ]),
+                                  _c(
+                                    "button",
+                                    {
+                                      staticClass: "btn btn-primary",
+                                      attrs: { type: "button" },
+                                      on: {
+                                        click: function($event) {
+                                          $event.preventDefault()
+                                          return _vm.asignar($event)
+                                        }
+                                      }
+                                    },
+                                    [_vm._v("Asignar")]
+                                  ),
                                   _vm._v(" "),
-                                  _c("div", { staticClass: "col-3" }, [
-                                    _c("label", { attrs: { for: "" } }, [
-                                      _vm._v(_vm._s(horario.MHorarioD))
-                                    ])
-                                  ]),
-                                  _vm._v(" "),
-                                  _c("div", { staticClass: "col-3" }, [
-                                    _c("label", { attrs: { for: "" } }, [
-                                      _vm._v(_vm._s(horario.MHorarioH))
-                                    ])
-                                  ]),
-                                  _vm._v(" "),
-                                  _c("div", { staticClass: "col-3" }, [
-                                    _c("div", { staticClass: "btn-group" }, [
-                                      _c(
-                                        "button",
-                                        {
-                                          staticClass:
-                                            "btn btn-secondary btn-sm dropdown-toggle",
-                                          attrs: {
-                                            type: "button",
-                                            "data-toggle": "dropdown",
-                                            "aria-haspopup": "true",
-                                            "aria-expanded": "false"
-                                          }
-                                        },
-                                        [_vm._v(_vm._s(_vm.salaSel))]
-                                      ),
-                                      _vm._v(" "),
-                                      _c(
-                                        "div",
-                                        { staticClass: "dropdown-menu" },
-                                        _vm._l(_vm.salas, function(
-                                          sala,
-                                          index
-                                        ) {
-                                          return _c(
-                                            "a",
-                                            {
-                                              key: index,
-                                              staticClass: "dropdown-item",
-                                              attrs: { href: "#" }
-                                            },
-                                            [_vm._v(_vm._s(sala.Nombre))]
-                                          )
-                                        }),
-                                        0
-                                      )
-                                    ])
-                                  ])
+                                  _c(
+                                    "button",
+                                    {
+                                      staticClass: "btn btn-secondary",
+                                      attrs: { type: "button" },
+                                      on: {
+                                        click: function($event) {
+                                          $event.preventDefault()
+                                          return _vm.edit($event)
+                                        }
+                                      }
+                                    },
+                                    [_vm._v("Editar")]
+                                  )
                                 ]
                               )
-                            })
-                          ],
-                          2
-                        ),
-                        _vm._v(" "),
-                        _c(
-                          "div",
-                          {
-                            staticClass: "col-2",
-                            staticStyle: {
-                              display: "flex",
-                              "align-items": "center",
-                              "justify-content": "center"
-                            }
-                          },
-                          [
-                            _c(
-                              "div",
-                              {
-                                staticClass: "btn-group",
-                                attrs: {
-                                  role: "group",
-                                  "aria-label": "Basic example"
-                                }
-                              },
-                              [
-                                _c(
-                                  "button",
-                                  {
-                                    staticClass: "btn btn-primary",
-                                    attrs: { type: "button" },
-                                    on: {
-                                      click: function($event) {
-                                        $event.preventDefault()
-                                        return _vm.asignar($event)
-                                      }
-                                    }
-                                  },
-                                  [_vm._v("Asignar")]
-                                ),
-                                _vm._v(" "),
-                                _c(
-                                  "button",
-                                  {
-                                    staticClass: "btn btn-secondary",
-                                    attrs: { type: "button" },
-                                    on: {
-                                      click: function($event) {
-                                        $event.preventDefault()
-                                        return _vm.edit($event)
-                                      }
-                                    }
-                                  },
-                                  [_vm._v("Editar")]
-                                )
-                              ]
-                            )
-                          ]
-                        )
-                      ])
-                    ]
-                  )
-                ]
-              )
+                            ]
+                          )
+                        ])
+                      ]
+                    )
+                  ]
+                )
+              ])
             ])
-          ])
-        ])
+          ]
+        )
       ]
     ),
     _vm._v(" "),

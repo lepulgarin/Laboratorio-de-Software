@@ -6,7 +6,7 @@
 <template>
   <div class="table-responsive">
     <table class="table table-hover" style="border-collapse:collapse; ">
-      <tbody>
+      <tbody style=" box-shadow: 0px 10px 8px -6px rgba(0, 0, 0, 0.2);">
         <tr
           data-toggle="collapse"
           :data-target="'#demo' + index"
@@ -101,7 +101,7 @@
                         </label>
                       </div>
                     </div>
-                    <div class="row" v-for="horario in myHorarios" :key="horario.idMásHorarios">
+                    <div class="row" v-for="(horario,index1) in myHorarios" v-bind:key="index1">
                       <div class="col-3">
                         <label for>{{horario.MDia}}</label>
                       </div>
@@ -112,22 +112,24 @@
                         <label for>{{horario.MHorarioH}}</label>
                       </div>
                       <div class="col-3">
-                        <div class="btn-group">
+                        <div class="dropdown">
                           <button
                             class="btn btn-secondary btn-sm dropdown-toggle"
                             type="button"
                             data-toggle="dropdown"
                             aria-haspopup="true"
                             aria-expanded="false"
-                          >{{salaSel}}</button>
-                          <div class="dropdown-menu">
-                            <a
-                              class="dropdown-item"
-                              href="#"
-                              v-for="(sala,index) in salas"
-                              :key="index"
-                            >{{sala.Nombre}}</a>
-                          </div>
+                          >{{horario.sala}}</button>
+                          <ul class="dropdown-menu">
+                            <div class="scroll" style="max-height:150px;">
+                              <li
+                                class="dropdown-item"
+                                v-for="(sala,index) in horario.salas"
+                                :key="index"
+                                @click="cambiarSala(horario,sala.Nombre,index1)"
+                              >{{sala.Nombre}}</li>
+                            </div>
+                          </ul>
                         </div>
                       </div>
                     </div>
@@ -170,25 +172,78 @@
 
 <script>
 export default {
-  props: ["index", "solicitud", "horarios", "idF", "salas"],
+  props: ["index", "solicitud", "horarios", "idF", "salas", "horas"],
   data() {
     return {
       myHorarios: [],
-      salaSel: "sala"
+      myHoras: []
     };
   },
 
   mounted() {
+    this.myHoras = this.horas.concat(this.myHoras);
     this.myHor();
-    console.log(this.salas);
+    this.mySal();
   },
   methods: {
     myHor() {
-      for (const horario in this.horarios) {
-        if (this.horarios[horario].idF === this.idF) {
-          this.myHorarios.push(this.horarios[horario]);
+      this.horarios.forEach(horario => {
+        if (horario.idF === this.idF) {
+          var tmp = { sala: "sala" };
+          Object.assign(horario, tmp);
+          tmp = { salas: [] };
+          Object.assign(horario, tmp);
+          this.myHorarios.push(horario);
         }
-      }
+      });
+    },
+    mySal() {
+      this.myHorarios.forEach(horario => {
+        this.salas.forEach(sala => {
+          if (sala.Nequipos > this.solicitud.FEstudiantes) {
+            if (!(this.solicitud.FEquipoA === 1 && sala.VideoBeam === 0)) {
+              if (this.myHoras.some(hora => hora.sala === sala.Nombre)) {
+                if (
+                  this.myHoras.some(
+                    hora =>
+                      hora.dia === horario.MDia && hora.dia === sala.Nombre
+                  )
+                ) {
+                  var tmp;
+                  tmp = this.myHoras.filter(
+                    hora =>
+                      hora.hora >= horario.MHorarioD &&
+                      hora.sala === sala.Nombre
+                  );
+                  if (tmp.length > 0) {
+                    tmp.sort(function(a, b) {
+                      if (a.hora > b.hora) return 1;
+                      else return -1;
+                    });
+                    var horaReq = this.restarHoras(
+                      horario.MHorarioD,
+                      horario.MHorarioH
+                    );
+                    var horaDis = this.restarHoras(
+                      horario.MHorarioD,
+                      tmp[0].hora
+                    );
+                    if (horaDis > horaReq) {
+                      horario.salas.push(sala);
+                    }
+                  } else {
+                    horario.salas.push(sala);
+                  }
+                } else {
+                  horario.salas.push(sala);
+                }
+              } else {
+                horario.salas.push(sala);
+              }
+            }
+          }
+        });
+      });
     },
     edit() {
       $("#edit" + this.index).modal("show");
@@ -198,9 +253,47 @@ export default {
       this.$emit("new");
     },
     asignar() {
+      
       axios
-        .delete("/solicitudes" + "/" + this.solicitud.idF)
+        .delete(
+          "/solicitudes" + "/" + this.solicitud.idF,
+          {idF: this.idF},
+          {horarios: this.myHorarios}
+        )
         .then(response => this.$emit("new"));
+    },
+    cambiarSala(horario, sala, index) {
+      horario.sala = sala;
+      Vue.set(this.myHorarios, index, horario);
+      console.log(this.myHorarios);
+    },
+    restarHoras(inicio, fin) {
+      var inicioMinutos = parseInt(inicio.substr(3, 2));
+      var inicioHoras = parseInt(inicio.substr(0, 2));
+
+      var finMinutos = parseInt(fin.substr(3, 2));
+      var finHoras = parseInt(fin.substr(0, 2));
+
+      var transcurridoMinutos = finMinutos - inicioMinutos;
+      var transcurridoHoras = finHoras - inicioHoras;
+
+      if (transcurridoMinutos < 0) {
+        transcurridoHoras--;
+        transcurridoMinutos = 60 + transcurridoMinutos;
+      }
+
+      var horas = transcurridoHoras.toString();
+      var minutos = transcurridoMinutos.toString();
+
+      if (horas.length < 2) {
+        horas = "0" + horas;
+      }
+
+      if (minutos.length < 2) {
+        minutos = "0" + minutos;
+      }
+
+      return horas + ":" + minutos;
     }
   }
 };

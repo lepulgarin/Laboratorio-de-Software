@@ -6,7 +6,7 @@
 <template>
   <div class="table-responsive">
     <table class="table table-hover" style="border-collapse:collapse; ">
-      <tbody>
+      <tbody style=" box-shadow: 0px 10px 8px -6px rgba(0, 0, 0, 0.2);">
         <tr
           data-toggle="collapse"
           :data-target="'#demo' + index"

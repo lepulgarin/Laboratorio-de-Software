@@ -70,7 +70,7 @@ class SolicitudesController extends Controller
         return $formulario;
     }
 
-    public function destroy($id, $horarios){
+    public function destroy(Request $idF, $horarios){
         foreach ($horarios as $h) {
             $a = $h['MHorarioD'];
             $b = $h['MHorarioH'];
@@ -81,12 +81,12 @@ class SolicitudesController extends Controller
             );
             foreach ($period as $date) {
                 DB::table('horas')->insert([
-                    ['idF' => $id, 'hora' => $date->format("H:i"), 'dia' => $h['MDia']], 'sala' => 'R211']); 
+                    ['idF' => $idF, 'hora' => $date->format("H:i"), 'dia' => $h['MDia']], 'sala' => 'R211']); 
             }
         }
-        DB::table('sol_pendientes')->where('idF', '=', $id)->delete();
+        DB::table('sol_pendientes')->where('idF', '=', $idF)->delete();
         DB::table('sol_atendidas')->insert([
-            ['idF' => $id],]); 
+            ['idF' => $idF],]); 
     }
 
 
