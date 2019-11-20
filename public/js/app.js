@@ -2193,10 +2193,6 @@ Vue.use(vue_disable_autocomplete__WEBPACK_IMPORTED_MODULE_0__["default"]);
         this.errors.push("Cantidad de Estudiantes Requerido.");
       }
 
-      if (!this.FSoftwareN) {
-        this.errors.push("Software Necesario Requerido.");
-      }
-
       if (!this.errors.length) {
         this.editForm();
         return true;
@@ -2811,10 +2807,6 @@ Vue.use(vue_disable_autocomplete__WEBPACK_IMPORTED_MODULE_0__["default"]);
 
       if (!this.FEstudiantes) {
         this.errors.push("Cantidad de Estudiantes Requerido.");
-      }
-
-      if (!this.FSoftwareN) {
-        this.errors.push("Software Necesario Requerido.");
       }
 
       if (!this.errors.length) {
@@ -3929,7 +3921,6 @@ __webpack_require__.r(__webpack_exports__);
     };
   },
   mounted: function mounted() {
-    this.myHoras = this.horas.concat(this.myHoras);
     this.myHor();
     this.mySal();
   },
@@ -3959,14 +3950,14 @@ __webpack_require__.r(__webpack_exports__);
         _this2.salas.forEach(function (sala) {
           if (sala.Nequipos > _this2.solicitud.FEstudiantes) {
             if (!(_this2.solicitud.FEquipoA === 1 && sala.VideoBeam === 0)) {
-              if (_this2.myHoras.some(function (hora) {
+              if (_this2.horas.some(function (hora) {
                 return hora.sala === sala.Nombre;
               })) {
-                if (_this2.myHoras.some(function (hora) {
-                  return hora.dia === horario.MDia && hora.dia === sala.Nombre;
+                if (_this2.horas.some(function (hora) {
+                  return hora.dia === horario.MDia && hora.sala === sala.Nombre;
                 })) {
                   var tmp;
-                  tmp = _this2.myHoras.filter(function (hora) {
+                  tmp = _this2.horas.filter(function (hora) {
                     return hora.hora >= horario.MHorarioD && hora.sala === sala.Nombre;
                   });
 
@@ -4017,7 +4008,38 @@ __webpack_require__.r(__webpack_exports__);
     cambiarSala: function cambiarSala(horario, sala, index) {
       horario.sala = sala;
       Vue.set(this.myHorarios, index, horario);
-      console.log(this.myHorarios);
+      var tiempo = this.restarHoras(horario.MHorarioD, horario.MHorarioH);
+      var Hd = parseInt(horario.MHorarioD.substr(0, 2));
+      var Hh = parseInt(horario.MHorarioH.substr(0, 2));
+      var Md = parseInt(horario.MHorarioD.substr(3, 2));
+      var Mh = parseInt(horario.MHorarioH.substr(3, 2));
+
+      for (var i = 0; i < tiempo.substr(0, 2); i++) {
+        var hora = {
+          hora: Hd + " : " + "00",
+          idF: this.idF,
+          sala: sala,
+          dia: horario.MDia
+        };
+        var hora1 = {
+          hora: Hd + " : " + "30",
+          idF: this.idF,
+          sala: sala,
+          dia: horario.MDia
+        };
+        this.horas.push(hora);
+        this.horas.push(hora1);
+        Hd++;
+
+        if (tiempo.substr(3, 2) === "30") {
+          var _hora = {
+            hora: Hd + " : " + "30",
+            idF: this.idF,
+            sala: sala,
+            dia: horario.MDia
+          };
+        }
+      }
     },
     restarHoras: function restarHoras(inicio, fin) {
       var inicioMinutos = parseInt(inicio.substr(3, 2));
@@ -43329,7 +43351,7 @@ var render = function() {
               },
               [
                 _c("td", { staticStyle: { width: "20%" } }, [
-                  _vm._v(_vm._s(_vm.solicitud.FechaSol))
+                  _vm._v(_vm._s(_vm.solicitud.FechaSol.substr(0, 10)))
                 ]),
                 _vm._v(" "),
                 _c("td", { staticStyle: { width: "20%" } }, [

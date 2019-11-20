@@ -12,7 +12,7 @@
           :data-target="'#demo' + index"
           class="clickable collapse-row collapsed"
         >
-          <td style="width: 20%">{{solicitud.FechaSol}}</td>
+          <td style="width: 20%">{{solicitud.FechaSol.substr(0,10)}}</td>
           <td style="width: 20%">{{solicitud.FNyA}}</td>
           <td style="width: 20%">{{solicitud.FNomAsignatura}}</td>
           <td style="width: 20%">{{solicitud.FFechaISol}}</td>
@@ -181,7 +181,6 @@ export default {
   },
 
   mounted() {
-    this.myHoras = this.horas.concat(this.myHoras);
     this.myHor();
     this.mySal();
   },
@@ -202,15 +201,15 @@ export default {
         this.salas.forEach(sala => {
           if (sala.Nequipos > this.solicitud.FEstudiantes) {
             if (!(this.solicitud.FEquipoA === 1 && sala.VideoBeam === 0)) {
-              if (this.myHoras.some(hora => hora.sala === sala.Nombre)) {
+              if (this.horas.some(hora => hora.sala === sala.Nombre)) {
                 if (
-                  this.myHoras.some(
+                  this.horas.some(
                     hora =>
-                      hora.dia === horario.MDia && hora.dia === sala.Nombre
+                      hora.dia === horario.MDia && hora.sala === sala.Nombre
                   )
                 ) {
                   var tmp;
-                  tmp = this.myHoras.filter(
+                  tmp = this.horas.filter(
                     hora =>
                       hora.hora >= horario.MHorarioD &&
                       hora.sala === sala.Nombre
@@ -253,19 +252,48 @@ export default {
       this.$emit("new");
     },
     asignar() {
-      
       axios
         .delete(
           "/solicitudes" + "/" + this.solicitud.idF,
-          {idF: this.idF},
-          {horarios: this.myHorarios}
+          { idF: this.idF },
+          { horarios: this.myHorarios }
         )
         .then(response => this.$emit("new"));
     },
     cambiarSala(horario, sala, index) {
       horario.sala = sala;
       Vue.set(this.myHorarios, index, horario);
-      console.log(this.myHorarios);
+      var tiempo = this.restarHoras(horario.MHorarioD, horario.MHorarioH);
+      var Hd = parseInt(horario.MHorarioD.substr(0, 2));
+      var Hh = parseInt(horario.MHorarioH.substr(0, 2));
+      var Md = parseInt(horario.MHorarioD.substr(3, 2));
+      var Mh = parseInt(horario.MHorarioH.substr(3, 2));
+
+      for (var i = 0; i < tiempo.substr(0, 2); i++) {
+        let hora = {
+          hora: Hd + " : " + "00",
+          idF: this.idF,
+          sala: sala,
+          dia: horario.MDia
+        };
+        let hora1 = {
+          hora: Hd + " : " + "30",
+          idF: this.idF,
+          sala: sala,
+          dia: horario.MDia
+        };
+        this.horas.push(hora);
+        this.horas.push(hora1);
+        Hd++;
+        if (tiempo.substr(3, 2) === "30") {
+          let hora = {
+            hora: Hd + " : " + "30",
+            idF: this.idF,
+            sala: sala,
+            dia: horario.MDia
+          };
+        }
+      }
     },
     restarHoras(inicio, fin) {
       var inicioMinutos = parseInt(inicio.substr(3, 2));

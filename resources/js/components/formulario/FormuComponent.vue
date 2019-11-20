@@ -290,10 +290,6 @@ export default {
       if (!this.FEstudiantes) {
         this.errors.push("Cantidad de Estudiantes Requerido.");
       }
-      if (!this.FSoftwareN) {
-        this.errors.push("Software Necesario Requerido.");
-      }
-
       if (!this.errors.length) {
         this.NewForm();
         return true;
