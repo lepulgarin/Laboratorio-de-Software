@@ -20,6 +20,8 @@ Auth::routes(['register' => false]);
 Route::get('/home', 'HomeController@index')->name('home');
 Route::apiResource('formulario', 'FormularioController');
 Route::apiResource('solicitudes', 'SolicitudesController');
+Route::apiResource('mail', 'MailControler');
+Route::apiResource('horarios', 'HorariosController');
 
 
 Route::Auth();

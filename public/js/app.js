@@ -2825,7 +2825,7 @@ Vue.use(vue_disable_autocomplete__WEBPACK_IMPORTED_MODULE_0__["default"]);
         FNyA: this.FNyA,
         FProDoc: this.FProDoc,
         FCedula: this.FCedula,
-        FCorreoUTP: this.FCorreoUTP,
+        FCorreoUTP: this.FCorreoUTP + "@utp.edu.co",
         FCorreoAlt: this.FCorreoAlt,
         FCodAsignatura: this.FCodAsignatura,
         FNomAsignatura: this.FNomAsignatura,
@@ -3266,6 +3266,10 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
@@ -3515,23 +3519,115 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
-  props: ["index", "solicitud", "horarios", "idF"],
+  props: ["index", "solicitud", "horarios", "idF", "salas", "horas"],
   data: function data() {
     return {
-      myHorarios: []
+      myHorarios: [],
+      myHoras: []
     };
   },
   mounted: function mounted() {
     this.myHor();
+    this.mySal();
   },
   methods: {
     myHor: function myHor() {
-      for (var horario in this.horarios) {
-        if (this.horarios[horario].idF === this.idF) {
-          this.myHorarios.push(this.horarios[horario]);
+      var _this = this;
+
+      this.horarios.map(function (horario) {
+        if (horario.idF === _this.idF) {
+          var sal;
+          sal = _this.horas.find(function (hora) {
+            return hora.idF === horario.idF && hora.dia === horario.MDia && hora.hora === horario.MHorarioD;
+          });
+          var tmp = {
+            sala: sal.sala
+          };
+          Object.assign(horario, tmp);
+          tmp = {
+            salas: []
+          };
+          Object.assign(horario, tmp);
+          horario.salas = [];
+
+          _this.myHorarios.push(horario);
         }
-      }
+      });
+    },
+    mySal: function mySal() {
+      var _this2 = this;
+
+      this.myHorarios.forEach(function (horario) {
+        _this2.salas.forEach(function (sala) {
+          if (sala.Nequipos > _this2.solicitud.FEstudiantes) {
+            if (!(_this2.solicitud.FEquipoA === 1 && sala.VideoBeam === 0)) {
+              if (_this2.horas.some(function (hora) {
+                return hora.sala === sala.Nombre;
+              })) {
+                if (_this2.horas.some(function (hora) {
+                  return hora.dia === horario.MDia && hora.sala === sala.Nombre;
+                })) {
+                  var tmp;
+                  tmp = _this2.horas.filter(function (hora) {
+                    return hora.hora >= horario.MHorarioD && hora.sala === sala.Nombre;
+                  });
+
+                  if (tmp.length > 0) {
+                    tmp.sort(function (a, b) {
+                      if (a.hora > b.hora) return 1;else return -1;
+                    });
+
+                    var horaReq = _this2.restarHoras(horario.MHorarioD, horario.MHorarioH);
+
+                    var horaDis = _this2.restarHoras(horario.MHorarioD, tmp[0].hora);
+
+                    if (horaDis > horaReq) {
+                      horario.salas.push(sala);
+                    }
+                  } else {
+                    horario.salas.push(sala);
+                  }
+                } else {
+                  horario.salas.push(sala);
+                }
+              } else {
+                horario.salas.push(sala);
+              }
+            }
+          }
+        });
+      });
     },
     edit: function edit() {
       $("#editAsig" + this.index).modal("show");
@@ -3540,7 +3636,33 @@ __webpack_require__.r(__webpack_exports__);
       $("#editAsig" + this.index).modal("hide");
       this.$emit("new");
     },
-    asignar: function asignar() {}
+    asignar: function asignar() {},
+    restarHoras: function restarHoras(inicio, fin) {
+      var inicioMinutos = parseInt(inicio.substr(3, 2));
+      var inicioHoras = parseInt(inicio.substr(0, 2));
+      var finMinutos = parseInt(fin.substr(3, 2));
+      var finHoras = parseInt(fin.substr(0, 2));
+      var transcurridoMinutos = finMinutos - inicioMinutos;
+      var transcurridoHoras = finHoras - inicioHoras;
+
+      if (transcurridoMinutos < 0) {
+        transcurridoHoras--;
+        transcurridoMinutos = 60 + transcurridoMinutos;
+      }
+
+      var horas = transcurridoHoras.toString();
+      var minutos = transcurridoMinutos.toString();
+
+      if (horas.length < 2) {
+        horas = "0" + horas;
+      }
+
+      if (minutos.length < 2) {
+        minutos = "0" + minutos;
+      }
+
+      return horas + ":" + minutos;
+    }
   }
 });
 
@@ -3701,30 +3823,166 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
-  props: ["index", "solicitud", "horarios", "idF"],
+  props: ["index", "solicitud", "horarios", "idF", "salas", "horas"],
   data: function data() {
     return {
-      myHorarios: []
+      myHorarios: [],
+      myHoras: []
     };
   },
   mounted: function mounted() {
-    this.myHor();
+    this.myHorAten();
+    this.mySal();
   },
   methods: {
-    myHor: function myHor() {
-      for (var horario in this.horarios) {
-        if (this.horarios[horario].idF === this.idF) {
-          this.myHorarios.push(this.horarios[horario]);
+    myHorAten: function myHorAten() {
+      var _this = this;
+
+      this.horarios.map(function (horario) {
+        if (horario.idF === _this.idF) {
+          var sal;
+          sal = _this.horas.find(function (hora) {
+            return hora.idF === horario.idF && hora.dia === horario.MDia && hora.hora === horario.MHorarioD;
+          });
+          var tmp = {
+            sala: sal.sala
+          };
+          Object.assign(horario, tmp);
+          tmp = {
+            salas: []
+          };
+          Object.assign(horario, tmp);
+          horario.salas = [];
+
+          _this.myHorarios.push(horario);
         }
-      }
+      });
+    },
+    mySal: function mySal() {
+      var _this2 = this;
+
+      this.myHorarios.forEach(function (horario) {
+        _this2.salas.forEach(function (sala) {
+          if (sala.Nequipos > _this2.solicitud.FEstudiantes) {
+            if (!(_this2.solicitud.FEquipoA === 1 && sala.VideoBeam === 0)) {
+              if (_this2.horas.some(function (hora) {
+                return hora.sala === sala.Nombre;
+              })) {
+                if (_this2.horas.some(function (hora) {
+                  return hora.dia === horario.MDia && hora.sala === sala.Nombre;
+                })) {
+                  var tmp;
+                  tmp = _this2.horas.filter(function (hora) {
+                    return hora.hora >= horario.MHorarioD && hora.sala === sala.Nombre;
+                  });
+
+                  if (tmp.length > 0) {
+                    tmp.sort(function (a, b) {
+                      if (a.hora > b.hora) return 1;else return -1;
+                    });
+
+                    var horaReq = _this2.restarHoras(horario.MHorarioD, horario.MHorarioH);
+
+                    var horaDis = _this2.restarHoras(horario.MHorarioD, tmp[0].hora);
+
+                    if (horaDis > horaReq) {
+                      horario.salas.push(sala);
+                    }
+                  } else {
+                    horario.salas.push(sala);
+                  }
+                } else {
+                  horario.salas.push(sala);
+                }
+              } else {
+                horario.salas.push(sala);
+              }
+            }
+          }
+        });
+      });
     },
     edit: function edit() {
-      $("#edit" + this.index).modal("show");
+      $("#editAten" + this.index).modal("show");
     },
     recargar: function recargar() {
-      $("#edit" + this.index).modal("hide");
+      $("#editAten" + this.index).modal("hide");
       this.$emit("new");
+    },
+    notificar: function notificar() {
+      var _this3 = this;
+
+      axios.post("horarios", {
+        horarios: this.myHorarios
+      }).then(function (response) {
+        return _this3.$emit("new");
+      });
+      axios.post("mail", {
+        horarios: this.myHorarios
+      }).then(function (response) {
+        return _this3.$emit("new");
+      });
+    },
+    cambiarSala: function cambiarSala(horario, sala, index) {
+      horario.sala = sala;
+      Vue.set(this.myHorarios, index, horario);
+    },
+    restarHoras: function restarHoras(inicio, fin) {
+      var inicioMinutos = parseInt(inicio.substr(3, 2));
+      var inicioHoras = parseInt(inicio.substr(0, 2));
+      var finMinutos = parseInt(fin.substr(3, 2));
+      var finHoras = parseInt(fin.substr(0, 2));
+      var transcurridoMinutos = finMinutos - inicioMinutos;
+      var transcurridoHoras = finHoras - inicioHoras;
+
+      if (transcurridoMinutos < 0) {
+        transcurridoHoras--;
+        transcurridoMinutos = 60 + transcurridoMinutos;
+      }
+
+      var horas = transcurridoHoras.toString();
+      var minutos = transcurridoMinutos.toString();
+
+      if (horas.length < 2) {
+        horas = "0" + horas;
+      }
+
+      if (minutos.length < 2) {
+        minutos = "0" + minutos;
+      }
+
+      return horas + ":" + minutos;
     }
   }
 });
@@ -3928,7 +4186,7 @@ __webpack_require__.r(__webpack_exports__);
     myHor: function myHor() {
       var _this = this;
 
-      this.horarios.forEach(function (horario) {
+      this.horarios.map(function (horario) {
         if (horario.idF === _this.idF) {
           var tmp = {
             sala: "sala"
@@ -3988,18 +4246,16 @@ __webpack_require__.r(__webpack_exports__);
       });
     },
     edit: function edit() {
-      $("#edit" + this.index).modal("show");
+      $("#editPen" + this.index).modal("show");
     },
     recargar: function recargar() {
-      $("#edit" + this.index).modal("hide");
+      $("#editPen" + this.index).modal("hide");
       this.$emit("new");
     },
     asignar: function asignar() {
       var _this3 = this;
 
-      axios["delete"]("/solicitudes" + "/" + this.solicitud.idF, {
-        idF: this.idF
-      }, {
+      axios.post("horarios", {
         horarios: this.myHorarios
       }).then(function (response) {
         return _this3.$emit("new");
@@ -4008,38 +4264,6 @@ __webpack_require__.r(__webpack_exports__);
     cambiarSala: function cambiarSala(horario, sala, index) {
       horario.sala = sala;
       Vue.set(this.myHorarios, index, horario);
-      var tiempo = this.restarHoras(horario.MHorarioD, horario.MHorarioH);
-      var Hd = parseInt(horario.MHorarioD.substr(0, 2));
-      var Hh = parseInt(horario.MHorarioH.substr(0, 2));
-      var Md = parseInt(horario.MHorarioD.substr(3, 2));
-      var Mh = parseInt(horario.MHorarioH.substr(3, 2));
-
-      for (var i = 0; i < tiempo.substr(0, 2); i++) {
-        var hora = {
-          hora: Hd + " : " + "00",
-          idF: this.idF,
-          sala: sala,
-          dia: horario.MDia
-        };
-        var hora1 = {
-          hora: Hd + " : " + "30",
-          idF: this.idF,
-          sala: sala,
-          dia: horario.MDia
-        };
-        this.horas.push(hora);
-        this.horas.push(hora1);
-        Hd++;
-
-        if (tiempo.substr(3, 2) === "30") {
-          var _hora = {
-            hora: Hd + " : " + "30",
-            idF: this.idF,
-            sala: sala,
-            dia: horario.MDia
-          };
-        }
-      }
     },
     restarHoras: function restarHoras(inicio, fin) {
       var inicioMinutos = parseInt(inicio.substr(3, 2));
@@ -42316,7 +42540,9 @@ var render = function() {
                                   idF: solicitud.idF,
                                   index: index,
                                   solicitud: solicitud,
-                                  horarios: _vm.hor_atendidas
+                                  horarios: _vm.hor_atendidas,
+                                  salas: _vm.salas,
+                                  horas: _vm.horas
                                 },
                                 on: { new: _vm.recargar }
                               })
@@ -42373,7 +42599,9 @@ var render = function() {
                                   idF: solicitud.idF,
                                   index: index,
                                   solicitud: solicitud,
-                                  horarios: _vm.hor_asignadas
+                                  horarios: _vm.hor_asignadas,
+                                  salas: _vm.salas,
+                                  horas: _vm.horas
                                 },
                                 on: { new: _vm.recargar }
                               })
@@ -42771,6 +42999,65 @@ var render = function() {
                                       _c("label", { attrs: { for: "" } }, [
                                         _vm._v(_vm._s(horario.MHorarioH))
                                       ])
+                                    ]),
+                                    _vm._v(" "),
+                                    _c("div", { staticClass: "col-3" }, [
+                                      _c("div", { staticClass: "dropdown" }, [
+                                        _c(
+                                          "button",
+                                          {
+                                            staticClass:
+                                              "btn btn-secondary btn-sm dropdown-toggle",
+                                            attrs: {
+                                              type: "button",
+                                              "data-toggle": "dropdown",
+                                              "aria-haspopup": "true",
+                                              "aria-expanded": "false"
+                                            }
+                                          },
+                                          [_vm._v(_vm._s(horario.sala))]
+                                        ),
+                                        _vm._v(" "),
+                                        _c(
+                                          "ul",
+                                          { staticClass: "dropdown-menu" },
+                                          [
+                                            _c(
+                                              "div",
+                                              {
+                                                staticClass: "scroll",
+                                                staticStyle: {
+                                                  "max-height": "150px"
+                                                }
+                                              },
+                                              _vm._l(horario.salas, function(
+                                                sala,
+                                                index
+                                              ) {
+                                                return _c(
+                                                  "li",
+                                                  {
+                                                    key: index,
+                                                    staticClass:
+                                                      "dropdown-item",
+                                                    on: {
+                                                      click: function($event) {
+                                                        return _vm.cambiarSala(
+                                                          horario,
+                                                          sala.Nombre,
+                                                          _vm.index1
+                                                        )
+                                                      }
+                                                    }
+                                                  },
+                                                  [_vm._v(_vm._s(sala.Nombre))]
+                                                )
+                                              }),
+                                              0
+                                            )
+                                          ]
+                                        )
+                                      ])
                                     ])
                                   ]
                                 )
@@ -43141,6 +43428,65 @@ var render = function() {
                                       _c("label", { attrs: { for: "" } }, [
                                         _vm._v(_vm._s(horario.MHorarioH))
                                       ])
+                                    ]),
+                                    _vm._v(" "),
+                                    _c("div", { staticClass: "col-3" }, [
+                                      _c("div", { staticClass: "dropdown" }, [
+                                        _c(
+                                          "button",
+                                          {
+                                            staticClass:
+                                              "btn btn-secondary btn-sm dropdown-toggle",
+                                            attrs: {
+                                              type: "button",
+                                              "data-toggle": "dropdown",
+                                              "aria-haspopup": "true",
+                                              "aria-expanded": "false"
+                                            }
+                                          },
+                                          [_vm._v(_vm._s(horario.sala))]
+                                        ),
+                                        _vm._v(" "),
+                                        _c(
+                                          "ul",
+                                          { staticClass: "dropdown-menu" },
+                                          [
+                                            _c(
+                                              "div",
+                                              {
+                                                staticClass: "scroll",
+                                                staticStyle: {
+                                                  "max-height": "150px"
+                                                }
+                                              },
+                                              _vm._l(horario.salas, function(
+                                                sala,
+                                                index
+                                              ) {
+                                                return _c(
+                                                  "li",
+                                                  {
+                                                    key: index,
+                                                    staticClass:
+                                                      "dropdown-item",
+                                                    on: {
+                                                      click: function($event) {
+                                                        return _vm.cambiarSala(
+                                                          horario,
+                                                          sala.Nombre,
+                                                          _vm.index1
+                                                        )
+                                                      }
+                                                    }
+                                                  },
+                                                  [_vm._v(_vm._s(sala.Nombre))]
+                                                )
+                                              }),
+                                              0
+                                            )
+                                          ]
+                                        )
+                                      ])
                                     ])
                                   ]
                                 )
@@ -43178,7 +43524,7 @@ var render = function() {
                                       on: {
                                         click: function($event) {
                                           $event.preventDefault()
-                                          return _vm.asignar($event)
+                                          return _vm.notificar($event)
                                         }
                                       }
                                     },
@@ -43219,7 +43565,7 @@ var render = function() {
       "div",
       {
         staticClass: "modal fade",
-        attrs: { id: "edit" + _vm.index, "aria-hidden": "true" },
+        attrs: { id: "editAten" + _vm.index, "aria-hidden": "true" },
         on: { hidde: _vm.recargar }
       },
       [
@@ -43645,7 +43991,7 @@ var render = function() {
       "div",
       {
         staticClass: "modal fade",
-        attrs: { id: "edit" + _vm.index, "aria-hidden": "true" },
+        attrs: { id: "editPen" + _vm.index, "aria-hidden": "true" },
         on: { hidde: _vm.recargar }
       },
       [

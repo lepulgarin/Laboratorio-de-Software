@@ -150,7 +150,7 @@
         </tr>
       </tbody>
     </table>
-    <div class="modal fade" :id="'edit' + index" aria-hidden="true" @hidde="recargar">
+    <div class="modal fade" :id="'editPen' + index" aria-hidden="true" @hidde="recargar">
       <div class="modal-dialog modal-xl">
         <div class="modal-content">
           <div class="modal-header">
@@ -186,7 +186,7 @@ export default {
   },
   methods: {
     myHor() {
-      this.horarios.forEach(horario => {
+      this.horarios.map(horario => {
         if (horario.idF === this.idF) {
           var tmp = { sala: "sala" };
           Object.assign(horario, tmp);
@@ -245,55 +245,20 @@ export default {
       });
     },
     edit() {
-      $("#edit" + this.index).modal("show");
+      $("#editPen" + this.index).modal("show");
     },
     recargar() {
-      $("#edit" + this.index).modal("hide");
+      $("#editPen" + this.index).modal("hide");
       this.$emit("new");
     },
     asignar() {
       axios
-        .delete(
-          "/solicitudes" + "/" + this.solicitud.idF,
-          { idF: this.idF },
-          { horarios: this.myHorarios }
-        )
+        .post("horarios", { horarios: this.myHorarios })
         .then(response => this.$emit("new"));
     },
     cambiarSala(horario, sala, index) {
       horario.sala = sala;
       Vue.set(this.myHorarios, index, horario);
-      var tiempo = this.restarHoras(horario.MHorarioD, horario.MHorarioH);
-      var Hd = parseInt(horario.MHorarioD.substr(0, 2));
-      var Hh = parseInt(horario.MHorarioH.substr(0, 2));
-      var Md = parseInt(horario.MHorarioD.substr(3, 2));
-      var Mh = parseInt(horario.MHorarioH.substr(3, 2));
-
-      for (var i = 0; i < tiempo.substr(0, 2); i++) {
-        let hora = {
-          hora: Hd + " : " + "00",
-          idF: this.idF,
-          sala: sala,
-          dia: horario.MDia
-        };
-        let hora1 = {
-          hora: Hd + " : " + "30",
-          idF: this.idF,
-          sala: sala,
-          dia: horario.MDia
-        };
-        this.horas.push(hora);
-        this.horas.push(hora1);
-        Hd++;
-        if (tiempo.substr(3, 2) === "30") {
-          let hora = {
-            hora: Hd + " : " + "30",
-            idF: this.idF,
-            sala: sala,
-            dia: horario.MDia
-          };
-        }
-      }
     },
     restarHoras(inicio, fin) {
       var inicioMinutos = parseInt(inicio.substr(3, 2));

@@ -116,6 +116,8 @@
                     :index="index"
                     :solicitud="solicitud"
                     :horarios="hor_atendidas"
+                    :salas="salas"
+                    :horas="horas"
                     @new="recargar"
                   ></solAten-component>
                 </div>
@@ -152,6 +154,8 @@
                     :index="index"
                     :solicitud="solicitud"
                     :horarios="hor_asignadas"
+                    :salas="salas"
+                    :horas="horas"
                     @new="recargar"
                   ></solAsig-component>
                 </div>

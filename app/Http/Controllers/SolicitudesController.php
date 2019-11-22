@@ -29,7 +29,7 @@ class SolicitudesController extends Controller
         ->paginate(10);
         $horas=DB::table('horas')
         ->orderBy('idHora','desc')
-        ->paginate(10);
+        ->paginate(1000);
         $salas=DB::table('salas')
         ->orderBy('idSalas','desc')
         ->paginate(10);
