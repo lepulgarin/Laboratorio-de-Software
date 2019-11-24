@@ -17,9 +17,11 @@ class Notificar extends Mailable
      * @return void
      */
     public $horarios;
-     public function __construct($horarios)
+    public $FNomAsignatura;
+     public function __construct($horarios, $FNomAsignatura)
     {
         $this->horarios = $horarios;
+        $this->FNomAsignatura = $FNomAsignatura;
     }
 
     /**

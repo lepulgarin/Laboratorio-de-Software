@@ -3,6 +3,6 @@
 
 @section('content')
 <div>
-    Price: {{ $horarios }}
+    Price: {{ $FNomAsignatura }}
 </div>
 @endsection

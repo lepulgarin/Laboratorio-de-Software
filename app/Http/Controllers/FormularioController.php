@@ -39,7 +39,8 @@ class FormularioController extends Controller
                 ]);
             }
             DB::table('sol_pendientes')->insert([
-                ['idF' => $formulario->idF],]);  
+                ['idF' => $formulario->idF],]);
+            
             return 'aceptado';
         }
 

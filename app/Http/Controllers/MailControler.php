@@ -15,9 +15,9 @@ class MailControler extends Controller
     	$salas=DB::table('formularios')
         ->orderBy('idF','desc')
         ->where('idF', '=', $request->horarios[0]['idF'])
-        ->paginate(10);
+        ->paginate(1);
     	$objDemo = $request->horarios;
-        Mail::to($salas[0]->FCorreoUTP)->send(new Notificar($objDemo,$salas[0]->FNomAsignatura));
+        Mail::to($salas[0]->FCorreoUTP.'@utp.edu.co')->send(new Notificar($objDemo,$salas[0]->FNomAsignatura));
         
 		DB::table('sol_atendidas')->where('idF', '=', $request->horarios[0]['idF'])->delete();
         DB::table('sol_asignadas')->insert([

@@ -3636,7 +3636,19 @@ __webpack_require__.r(__webpack_exports__);
       $("#editAsig" + this.index).modal("hide");
       this.$emit("new");
     },
-    asignar: function asignar() {},
+    asignar: function asignar() {
+      var _this3 = this;
+
+      axios.post("horarios", {
+        horarios: this.myHorarios
+      }).then(function (response) {
+        return _this3.$emit("new");
+      });
+    },
+    cambiarSala: function cambiarSala(horario, sala, index) {
+      horario.sala = sala;
+      Vue.set(this.myHorarios, index, horario);
+    },
     restarHoras: function restarHoras(inicio, fin) {
       var inicioMinutos = parseInt(inicio.substr(3, 2));
       var inicioHoras = parseInt(inicio.substr(0, 2));
@@ -57464,8 +57476,8 @@ __webpack_require__.r(__webpack_exports__);
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-__webpack_require__(/*! C:\Users\lea-p\Desktop\Laboratorio-de-Software-master\resources\js\app.js */"./resources/js/app.js");
-module.exports = __webpack_require__(/*! C:\Users\lea-p\Desktop\Laboratorio-de-Software-master\resources\sass\app.scss */"./resources/sass/app.scss");
+__webpack_require__(/*! C:\Users\Don Mierda\Downloads\Laboratorio-de-Software\resources\js\app.js */"./resources/js/app.js");
+module.exports = __webpack_require__(/*! C:\Users\Don Mierda\Downloads\Laboratorio-de-Software\resources\sass\app.scss */"./resources/sass/app.scss");
 
 
 /***/ })

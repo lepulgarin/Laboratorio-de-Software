@@ -263,7 +263,15 @@ export default {
       $("#editAsig" + this.index).modal("hide");
       this.$emit("new");
     },
-    asignar() {},
+    asignar() {
+      axios
+        .post("horarios", { horarios: this.myHorarios })
+        .then(response => this.$emit("new"));
+    },
+    cambiarSala(horario, sala, index) {
+      horario.sala = sala;
+      Vue.set(this.myHorarios, index, horario);
+    },
     restarHoras(inicio, fin) {
       var inicioMinutos = parseInt(inicio.substr(3, 2));
       var inicioHoras = parseInt(inicio.substr(0, 2));
