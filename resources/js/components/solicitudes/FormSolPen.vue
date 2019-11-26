@@ -39,7 +39,7 @@
                     <h6>
                       <label>
                         <b>Correo:</b>
-                        {{solicitud.FCorreoUTP}}
+                        {{solicitud.FCorreoUTP}}@utp.edu.co
                       </label>
                     </h6>
                     <h6>
@@ -139,7 +139,7 @@
                     style="display: flex; align-items: center; justify-content: center;"
                   >
                     <div class="btn-group" role="group" aria-label="Basic example">
-                      <button type="button" class="btn btn-primary" @click.prevent="asignar">Asignar</button>
+                      <button type="button" class="btn btn-primary" @click.prevent="asignar">Atender</button>
                       <button type="button" class="btn btn-secondary" @click.prevent="edit">Editar</button>
                     </div>
                   </div>
@@ -176,7 +176,7 @@ export default {
   data() {
     return {
       myHorarios: [],
-      myHoras: []
+      myHoras: [],
     };
   },
 

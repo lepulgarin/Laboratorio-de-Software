@@ -58,6 +58,7 @@ class HorariosController extends Controller
             
         }
         DB::table('sol_pendientes')->where('idF', '=', $request->horarios[0]['idF'])->delete();
+        DB::table('sol_asignadas')->where('idF', '=', $request->horarios[0]['idF'])->delete();
         DB::table('sol_atendidas')->insert([
             ['idF' => $request->horarios[0]['idF'],]]);
     }

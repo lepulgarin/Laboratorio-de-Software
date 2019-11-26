@@ -306,7 +306,7 @@ export default {
         FNyA: this.FNyA,
         FProDoc: this.FProDoc,
         FCedula: this.FCedula,
-        FCorreoUTP: this.FCorreoUTP + "@utp.edu.co",
+        FCorreoUTP: this.FCorreoUTP,
         FCorreoAlt: this.FCorreoAlt,
         FCodAsignatura: this.FCodAsignatura,
         FNomAsignatura: this.FNomAsignatura,

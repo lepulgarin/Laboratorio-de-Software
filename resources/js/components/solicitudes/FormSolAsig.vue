@@ -39,7 +39,7 @@
                     <h6>
                       <label>
                         <b>Correo:</b>
-                        {{solicitud.FCorreoUTP}}
+                        {{solicitud.FCorreoUTP}}@utp.edu.co
                       </label>
                     </h6>
                     <h6>
@@ -101,7 +101,7 @@
                         </label>
                       </div>
                     </div>
-                    <div class="row" v-for="horario in myHorarios" :key="horario.idMásHorarios">
+                    <div class="row" v-for="(horario,index1) in myHorarios" :key="index1">
                       <div class="col-3">
                         <label for>{{horario.MDia}}</label>
                       </div>
@@ -142,9 +142,21 @@
                       <button
                         type="button"
                         class="btn btn-primary"
-                        @click.prevent="asignar"
-                      >Asignar de Nuevo</button>
-                      <button type="button" class="btn btn-secondary" @click.prevent="edit">Editar</button>
+                        @click.prevent="aplicar"
+                        v-if="(cambio === 0)"
+                      >Aplicar</button>
+                      <button
+                        type="button"
+                        class="btn btn-secondary"
+                        @click.prevent="edit"
+                        v-if="cambio===1"
+                      >Editar</button>
+                      <button
+                        type="button"
+                        class="btn btn-secondary"
+                        @click.prevent="cancelar"
+                        v-if="cambio === 0"
+                      >Cancelar</button>
                     </div>
                   </div>
                 </div>
@@ -180,7 +192,8 @@ export default {
   data() {
     return {
       myHorarios: [],
-      myHoras: []
+      myHoras: [],
+      cambio: 1
     };
   },
 
@@ -263,14 +276,21 @@ export default {
       $("#editAsig" + this.index).modal("hide");
       this.$emit("new");
     },
-    asignar() {
-      axios
-        .post("horarios", { horarios: this.myHorarios })
-        .then(response => this.$emit("new"));
-    },
     cambiarSala(horario, sala, index) {
       horario.sala = sala;
       Vue.set(this.myHorarios, index, horario);
+      this.cambio = 0;
+    },
+    cancelar() {
+      this.myHorarios = [];
+      this.myHor();
+      this.mySal();
+      this.cambio = 1;
+    },
+    aplicar() {
+      axios
+        .post("horarios", { horarios: this.myHorarios })
+        .then(response => this.$emit("new"));
     },
     restarHoras(inicio, fin) {
       var inicioMinutos = parseInt(inicio.substr(3, 2));

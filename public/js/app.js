@@ -2825,7 +2825,7 @@ Vue.use(vue_disable_autocomplete__WEBPACK_IMPORTED_MODULE_0__["default"]);
         FNyA: this.FNyA,
         FProDoc: this.FProDoc,
         FCedula: this.FCedula,
-        FCorreoUTP: this.FCorreoUTP + "@utp.edu.co",
+        FCorreoUTP: this.FCorreoUTP,
         FCorreoAlt: this.FCorreoAlt,
         FCodAsignatura: this.FCodAsignatura,
         FNomAsignatura: this.FNomAsignatura,
@@ -3549,12 +3549,25 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   props: ["index", "solicitud", "horarios", "idF", "salas", "horas"],
   data: function data() {
     return {
       myHorarios: [],
-      myHoras: []
+      myHoras: [],
+      cambio: 1
     };
   },
   mounted: function mounted() {
@@ -3636,7 +3649,18 @@ __webpack_require__.r(__webpack_exports__);
       $("#editAsig" + this.index).modal("hide");
       this.$emit("new");
     },
-    asignar: function asignar() {
+    cambiarSala: function cambiarSala(horario, sala, index) {
+      horario.sala = sala;
+      Vue.set(this.myHorarios, index, horario);
+      this.cambio = 0;
+    },
+    cancelar: function cancelar() {
+      this.myHorarios = [];
+      this.myHor();
+      this.mySal();
+      this.cambio = 1;
+    },
+    aplicar: function aplicar() {
       var _this3 = this;
 
       axios.post("horarios", {
@@ -3644,10 +3668,6 @@ __webpack_require__.r(__webpack_exports__);
       }).then(function (response) {
         return _this3.$emit("new");
       });
-    },
-    cambiarSala: function cambiarSala(horario, sala, index) {
-      horario.sala = sala;
-      Vue.set(this.myHorarios, index, horario);
     },
     restarHoras: function restarHoras(inicio, fin) {
       var inicioMinutos = parseInt(inicio.substr(3, 2));
@@ -3865,12 +3885,31 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   props: ["index", "solicitud", "horarios", "idF", "salas", "horas"],
   data: function data() {
     return {
       myHorarios: [],
-      myHoras: []
+      myHoras: [],
+      cambio: 1
     };
   },
   mounted: function mounted() {
@@ -3955,11 +3994,6 @@ __webpack_require__.r(__webpack_exports__);
     notificar: function notificar() {
       var _this3 = this;
 
-      axios.post("horarios", {
-        horarios: this.myHorarios
-      }).then(function (response) {
-        return _this3.$emit("new");
-      });
       axios.post("mail", {
         horarios: this.myHorarios
       }).then(function (response) {
@@ -3969,6 +4003,22 @@ __webpack_require__.r(__webpack_exports__);
     cambiarSala: function cambiarSala(horario, sala, index) {
       horario.sala = sala;
       Vue.set(this.myHorarios, index, horario);
+      this.cambio = 0;
+    },
+    cancelar: function cancelar() {
+      this.myHorarios = [];
+      this.myHorAten();
+      this.mySal();
+      this.cambio = 1;
+    },
+    aplicar: function aplicar() {
+      var _this4 = this;
+
+      axios.post("horarios", {
+        horarios: this.myHorarios
+      }).then(function (response) {
+        return _this4.$emit("new");
+      });
     },
     restarHoras: function restarHoras(inicio, fin) {
       var inicioMinutos = parseInt(inicio.substr(3, 2));
@@ -42918,7 +42968,7 @@ var render = function() {
                                 _vm._v(
                                   "\n                      " +
                                     _vm._s(_vm.solicitud.FCorreoUTP) +
-                                    "\n                    "
+                                    "@utp.edu.co\n                    "
                                 )
                               ])
                             ]),
@@ -42987,13 +43037,10 @@ var render = function() {
                               _vm._v(" "),
                               _vm._m(1),
                               _vm._v(" "),
-                              _vm._l(_vm.myHorarios, function(horario) {
+                              _vm._l(_vm.myHorarios, function(horario, index1) {
                                 return _c(
                                   "div",
-                                  {
-                                    key: horario.idMásHorarios,
-                                    staticClass: "row"
-                                  },
+                                  { key: index1, staticClass: "row" },
                                   [
                                     _c("div", { staticClass: "col-3" }, [
                                       _c("label", { attrs: { for: "" } }, [
@@ -43057,7 +43104,7 @@ var render = function() {
                                                         return _vm.cambiarSala(
                                                           horario,
                                                           sala.Nombre,
-                                                          _vm.index1
+                                                          index1
                                                         )
                                                       }
                                                     }
@@ -43099,35 +43146,56 @@ var render = function() {
                                   }
                                 },
                                 [
-                                  _c(
-                                    "button",
-                                    {
-                                      staticClass: "btn btn-primary",
-                                      attrs: { type: "button" },
-                                      on: {
-                                        click: function($event) {
-                                          $event.preventDefault()
-                                          return _vm.asignar($event)
-                                        }
-                                      }
-                                    },
-                                    [_vm._v("Asignar de Nuevo")]
-                                  ),
+                                  _vm.cambio === 0
+                                    ? _c(
+                                        "button",
+                                        {
+                                          staticClass: "btn btn-primary",
+                                          attrs: { type: "button" },
+                                          on: {
+                                            click: function($event) {
+                                              $event.preventDefault()
+                                              return _vm.aplicar($event)
+                                            }
+                                          }
+                                        },
+                                        [_vm._v("Aplicar")]
+                                      )
+                                    : _vm._e(),
                                   _vm._v(" "),
-                                  _c(
-                                    "button",
-                                    {
-                                      staticClass: "btn btn-secondary",
-                                      attrs: { type: "button" },
-                                      on: {
-                                        click: function($event) {
-                                          $event.preventDefault()
-                                          return _vm.edit($event)
-                                        }
-                                      }
-                                    },
-                                    [_vm._v("Editar")]
-                                  )
+                                  _vm.cambio === 1
+                                    ? _c(
+                                        "button",
+                                        {
+                                          staticClass: "btn btn-secondary",
+                                          attrs: { type: "button" },
+                                          on: {
+                                            click: function($event) {
+                                              $event.preventDefault()
+                                              return _vm.edit($event)
+                                            }
+                                          }
+                                        },
+                                        [_vm._v("Editar")]
+                                      )
+                                    : _vm._e(),
+                                  _vm._v(" "),
+                                  _vm.cambio === 0
+                                    ? _c(
+                                        "button",
+                                        {
+                                          staticClass: "btn btn-secondary",
+                                          attrs: { type: "button" },
+                                          on: {
+                                            click: function($event) {
+                                              $event.preventDefault()
+                                              return _vm.cancelar($event)
+                                            }
+                                          }
+                                        },
+                                        [_vm._v("Cancelar")]
+                                      )
+                                    : _vm._e()
                                 ]
                               )
                             ]
@@ -43347,7 +43415,7 @@ var render = function() {
                                 _vm._v(
                                   "\n                      " +
                                     _vm._s(_vm.solicitud.FCorreoUTP) +
-                                    "\n                    "
+                                    "@utp.edu.co\n                    "
                                 )
                               ])
                             ]),
@@ -43416,13 +43484,10 @@ var render = function() {
                               _vm._v(" "),
                               _vm._m(1),
                               _vm._v(" "),
-                              _vm._l(_vm.myHorarios, function(horario) {
+                              _vm._l(_vm.myHorarios, function(horario, index1) {
                                 return _c(
                                   "div",
-                                  {
-                                    key: horario.idMásHorarios,
-                                    staticClass: "row"
-                                  },
+                                  { key: index1, staticClass: "row" },
                                   [
                                     _c("div", { staticClass: "col-3" }, [
                                       _c("label", { attrs: { for: "" } }, [
@@ -43486,7 +43551,7 @@ var render = function() {
                                                         return _vm.cambiarSala(
                                                           horario,
                                                           sala.Nombre,
-                                                          _vm.index1
+                                                          index1
                                                         )
                                                       }
                                                     }
@@ -43528,35 +43593,73 @@ var render = function() {
                                   }
                                 },
                                 [
-                                  _c(
-                                    "button",
-                                    {
-                                      staticClass: "btn btn-primary",
-                                      attrs: { type: "button" },
-                                      on: {
-                                        click: function($event) {
-                                          $event.preventDefault()
-                                          return _vm.notificar($event)
-                                        }
-                                      }
-                                    },
-                                    [_vm._v("Notificar")]
-                                  ),
+                                  _vm.cambio === 1
+                                    ? _c(
+                                        "button",
+                                        {
+                                          staticClass: "btn btn-primary",
+                                          attrs: { type: "button" },
+                                          on: {
+                                            click: function($event) {
+                                              $event.preventDefault()
+                                              return _vm.notificar($event)
+                                            }
+                                          }
+                                        },
+                                        [_vm._v("Asignar")]
+                                      )
+                                    : _vm._e(),
                                   _vm._v(" "),
-                                  _c(
-                                    "button",
-                                    {
-                                      staticClass: "btn btn-secondary",
-                                      attrs: { type: "button" },
-                                      on: {
-                                        click: function($event) {
-                                          $event.preventDefault()
-                                          return _vm.edit($event)
-                                        }
-                                      }
-                                    },
-                                    [_vm._v("Editar")]
-                                  )
+                                  _vm.cambio === 0
+                                    ? _c(
+                                        "button",
+                                        {
+                                          staticClass: "btn btn-primary",
+                                          attrs: { type: "button" },
+                                          on: {
+                                            click: function($event) {
+                                              $event.preventDefault()
+                                              return _vm.aplicar($event)
+                                            }
+                                          }
+                                        },
+                                        [_vm._v("Aplicar")]
+                                      )
+                                    : _vm._e(),
+                                  _vm._v(" "),
+                                  _vm.cambio === 1
+                                    ? _c(
+                                        "button",
+                                        {
+                                          staticClass: "btn btn-secondary",
+                                          attrs: { type: "button" },
+                                          on: {
+                                            click: function($event) {
+                                              $event.preventDefault()
+                                              return _vm.edit($event)
+                                            }
+                                          }
+                                        },
+                                        [_vm._v("Editar")]
+                                      )
+                                    : _vm._e(),
+                                  _vm._v(" "),
+                                  _vm.cambio === 0
+                                    ? _c(
+                                        "button",
+                                        {
+                                          staticClass: "btn btn-secondary",
+                                          attrs: { type: "button" },
+                                          on: {
+                                            click: function($event) {
+                                              $event.preventDefault()
+                                              return _vm.cancelar($event)
+                                            }
+                                          }
+                                        },
+                                        [_vm._v("Cancelar")]
+                                      )
+                                    : _vm._e()
                                 ]
                               )
                             ]
@@ -43776,7 +43879,7 @@ var render = function() {
                                 _vm._v(
                                   "\n                      " +
                                     _vm._s(_vm.solicitud.FCorreoUTP) +
-                                    "\n                    "
+                                    "@utp.edu.co\n                    "
                                 )
                               ])
                             ]),
@@ -43966,7 +44069,7 @@ var render = function() {
                                         }
                                       }
                                     },
-                                    [_vm._v("Asignar")]
+                                    [_vm._v("Atender")]
                                   ),
                                   _vm._v(" "),
                                   _c(
@@ -57476,8 +57579,8 @@ __webpack_require__.r(__webpack_exports__);
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-__webpack_require__(/*! C:\Users\Don Mierda\Downloads\Laboratorio-de-Software\resources\js\app.js */"./resources/js/app.js");
-module.exports = __webpack_require__(/*! C:\Users\Don Mierda\Downloads\Laboratorio-de-Software\resources\sass\app.scss */"./resources/sass/app.scss");
+__webpack_require__(/*! C:\Users\lea-p\Desktop\Laboratorio-de-Software-master\resources\js\app.js */"./resources/js/app.js");
+module.exports = __webpack_require__(/*! C:\Users\lea-p\Desktop\Laboratorio-de-Software-master\resources\sass\app.scss */"./resources/sass/app.scss");
 
 
 /***/ })

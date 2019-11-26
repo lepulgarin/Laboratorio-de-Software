@@ -17,16 +17,16 @@ class SolicitudesController extends Controller
         $solicitudes= Formulario::all();
         $sol_pendientes=DB::table('sol_pendientes')
         ->orderBy('idSol','desc')
-        ->paginate(10);
+        ->paginate(100);
         $sol_asignadas=DB::table('sol_asignadas')
         ->orderBy('idSol','desc')
-        ->paginate(10);
+        ->paginate(100);
         $sol_atendidas=DB::table('sol_atendidas')
         ->orderBy('idSol','desc')
-        ->paginate(10);
+        ->paginate(100);
         $horarios=DB::table('máshorarios')
         ->orderBy('idMásHorarios','desc')
-        ->paginate(10);
+        ->paginate(1000);
         $horas=DB::table('horas')
         ->orderBy('idHora','desc')
         ->paginate(1000);
