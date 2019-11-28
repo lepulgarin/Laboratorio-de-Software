@@ -5,8 +5,8 @@ return [
   "host" => "smtp.mailtrap.io",
   "port" => 2525,
   "from" => array(
-      "address" => "from@example.com",
-      "name" => "Example"
+      "address" => "salasutp@gmail.com",
+      "name" => "Administrador Aura"
   ),
   "username" => "13bcdfcdd414e5",
   "password" => "35d2e522abb226",
