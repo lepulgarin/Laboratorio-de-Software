@@ -12,7 +12,7 @@
           :data-target="'#demo' + index"
           class="clickable collapse-row collapsed"
         >
-          <td style="width: 20%">{{solicitud.FechaSol}}</td>
+          <td style="width: 20%">{{solicitud.FechaSol.substr(0,10)}}</td>
           <td style="width: 20%">{{solicitud.FNyA}}</td>
           <td style="width: 20%">{{solicitud.FNomAsignatura}}</td>
           <td style="width: 20%">{{solicitud.FFechaISol}}</td>
@@ -283,6 +283,7 @@ export default {
       this.$emit("new");
     },
     notificar() {
+      console.log(this.myHorarios);
       axios
         .post("mail", { horarios: this.myHorarios })
         .then(response => this.$emit("new"));

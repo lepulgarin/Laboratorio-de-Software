@@ -3994,6 +3994,7 @@ __webpack_require__.r(__webpack_exports__);
     notificar: function notificar() {
       var _this3 = this;
 
+      console.log(this.myHorarios);
       axios.post("mail", {
         horarios: this.myHorarios
       }).then(function (response) {
@@ -42901,7 +42902,7 @@ var render = function() {
               },
               [
                 _c("td", { staticStyle: { width: "20%" } }, [
-                  _vm._v(_vm._s(_vm.solicitud.FechaSol))
+                  _vm._v(_vm._s(_vm.solicitud.FechaSol.substr(0, 10)))
                 ]),
                 _vm._v(" "),
                 _c("td", { staticStyle: { width: "20%" } }, [
@@ -43348,7 +43349,7 @@ var render = function() {
               },
               [
                 _c("td", { staticStyle: { width: "20%" } }, [
-                  _vm._v(_vm._s(_vm.solicitud.FechaSol))
+                  _vm._v(_vm._s(_vm.solicitud.FechaSol.substr(0, 10)))
                 ]),
                 _vm._v(" "),
                 _c("td", { staticStyle: { width: "20%" } }, [
